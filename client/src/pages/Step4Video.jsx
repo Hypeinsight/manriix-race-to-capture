@@ -1,7 +1,15 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Video, Upload, CheckCircle2, ChevronRight, Mic, Square, PlayCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Video, Upload, CheckCircle2, ChevronRight, Mic, Square } from 'lucide-react';
+
+// Explicit dark card style — avoids button/forms-plugin white background conflicts
+const darkCard = {
+  background: 'rgb(20,20,20)',
+  border: '1px solid rgba(255,255,255,0.08)',
+  borderRadius: '2px',
+  transition: 'border-color 0.2s, box-shadow 0.2s',
+};
 import Layout from '../components/Layout.jsx';
 import { useParticipant } from '../context/ParticipantContext.jsx';
 import api from '../lib/api.js';
@@ -150,32 +158,38 @@ export default function Step4Video() {
         </div>
 
         {/* Choose mode */}
-        {mode === 'choose' && (
+        {mode === 'choose' && !hasVideo && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
-            <button
+            <div
               onClick={() => setMode('record')}
-              className="card"
-              style={{ textAlign: 'center', cursor: 'pointer', padding: '1.5rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}
+              style={{ ...darkCard, padding: '1.75rem 1rem', textAlign: 'center', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.6rem' }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(254,215,0,0.3)'; e.currentTarget.style.boxShadow='rgba(254,215,0,0.08) 0 0 20px -6px inset'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor='rgba(255,255,255,0.08)'; e.currentTarget.style.boxShadow='none'; }}
             >
-              <Mic size={24} style={{ color: '#fed700' }} />
-              <p style={{ fontSize: '13px', fontWeight: 500, color: '#fff' }}>Record now</p>
-              <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)' }}>Use camera</p>
-            </button>
-            <button
+              <div style={{ width:46,height:46,borderRadius:'2px',background:'rgba(254,215,0,0.1)',border:'1px solid rgba(254,215,0,0.2)',display:'flex',alignItems:'center',justifyContent:'center' }}>
+                <Mic size={20} style={{ color: '#fed700' }} />
+              </div>
+              <p style={{ fontSize: '13px', fontWeight: 500, color: '#fff', margin: 0 }}>Record now</p>
+              <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', margin: 0, fontFamily:'"JetBrains Mono"' }}>Use camera</p>
+            </div>
+            <div
               onClick={() => setMode('upload')}
-              className="card"
-              style={{ textAlign: 'center', cursor: 'pointer', padding: '1.5rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}
+              style={{ ...darkCard, padding: '1.75rem 1rem', textAlign: 'center', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.6rem' }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(251,178,56,0.3)'; e.currentTarget.style.boxShadow='rgba(251,178,56,0.08) 0 0 20px -6px inset'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor='rgba(255,255,255,0.08)'; e.currentTarget.style.boxShadow='none'; }}
             >
-              <Upload size={24} style={{ color: '#fbb238' }} />
-              <p style={{ fontSize: '13px', fontWeight: 500, color: '#fff' }}>Upload file</p>
-              <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)' }}>From device</p>
-            </button>
+              <div style={{ width:46,height:46,borderRadius:'2px',background:'rgba(251,178,56,0.1)',border:'1px solid rgba(251,178,56,0.2)',display:'flex',alignItems:'center',justifyContent:'center' }}>
+                <Upload size={20} style={{ color: '#fbb238' }} />
+              </div>
+              <p style={{ fontSize: '13px', fontWeight: 500, color: '#fff', margin: 0 }}>Upload file</p>
+              <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', margin: 0, fontFamily:'"JetBrains Mono"' }}>From device</p>
+            </div>
           </div>
         )}
 
         {/* Record mode */}
         {mode === 'record' && !hasVideo && (
-          <div className="card mb-4">
+          <div style={{ ...darkCard, padding: '1.25rem', marginBottom: '1rem' }}>
             {/* Video preview */}
             <video
               ref={videoPreview}
@@ -219,29 +233,23 @@ export default function Step4Video() {
 
         {/* Upload mode */}
         {mode === 'upload' && !hasVideo && (
-          <div className="card mb-4">
+          <div style={{ ...darkCard, padding: '1.25rem', marginBottom: '1rem' }}>
             <div
               onClick={() => fileRef.current?.click()}
-              style={{
-                border: '2px dashed rgba(255,255,255,0.15)',
-                borderRadius: '2px',
-                padding: '2.5rem 1rem',
-                textAlign: 'center',
-                cursor: 'pointer',
-                marginBottom: '0.75rem',
-              }}
+              style={{ border: '2px dashed rgba(255,255,255,0.1)', borderRadius: '2px', padding: '2.5rem 1rem', textAlign: 'center', cursor: 'pointer', marginBottom: '0.75rem' }}
+              onMouseEnter={e => e.currentTarget.style.borderColor='rgba(254,215,0,0.25)'}
+              onMouseLeave={e => e.currentTarget.style.borderColor='rgba(255,255,255,0.1)'}
             >
-              <Upload size={28} style={{ color: 'rgba(255,255,255,0.3)', margin: '0 auto 0.75rem' }} />
-              <p style={{ fontSize: '14px', color: '#fff' }}>Tap to select video</p>
-              <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', marginTop: '4px' }}>MP4, MOV, WEBM · max 200 MB</p>
+              <div style={{ width:46,height:46,background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:'2px',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 1rem' }}>
+                <Upload size={20} style={{ color: 'rgba(255,255,255,0.3)' }} />
+              </div>
+              <p style={{ fontSize: '14px', color: '#fff', margin: '0 0 4px', fontWeight: 400 }}>Tap to select video</p>
+              <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.25)', margin: 0, fontFamily:'"JetBrains Mono"' }}>MP4 · MOV · WEBM · max 200 MB</p>
             </div>
-            <input ref={fileRef} type="file" accept="video/*" className="hidden" onChange={e => handleFile(e.target.files[0])} />
-            <button
-              onClick={() => setMode('choose')}
-              style={{ width: '100%', background: 'none', border: 'none', color: 'rgba(255,255,255,0.3)', fontSize: '12px', cursor: 'pointer', padding: '8px', fontFamily: '"JetBrains Mono"' }}
-            >
-              ← Back
-            </button>
+            <input ref={fileRef} type="file" accept="video/*" style={{ display: 'none' }} onChange={e => handleFile(e.target.files[0])} />
+            <div style={{ textAlign: 'center' }}>
+              <button onClick={() => setMode('choose')} style={{ background:'none',border:'none',color:'rgba(255,255,255,0.25)',fontSize:'11px',cursor:'pointer',fontFamily:'"JetBrains Mono"',letterSpacing:'0.06em' }}>← Back</button>
+            </div>
           </div>
         )}
 
@@ -250,7 +258,7 @@ export default function Step4Video() {
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            className="card mb-4"
+            style={{ ...darkCard, borderColor:'rgba(34,197,94,0.2)', background:'rgba(34,197,94,0.03)', padding:'1.25rem', marginBottom:'1rem' }}
           >
             <video
               src={preview}

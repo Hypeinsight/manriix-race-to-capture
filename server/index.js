@@ -52,16 +52,28 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // ─── Boot ─────────────────────────────────────────────────────────────────────
+async function initDb(retries = 8, delayMs = 4000) {
+  const fs = require('fs');
+  const sql = fs.readFileSync(path.join(__dirname, 'db/init.sql'), 'utf8');
+  for (let i = 1; i <= retries; i++) {
+    try {
+      await db.query(sql);
+      console.log('✓ Database schema ready');
+      return;
+    } catch (err) {
+      console.warn(`DB not ready (attempt ${i}/${retries}): ${err.message}`);
+      if (i === retries) throw err;
+      await new Promise(r => setTimeout(r, delayMs));
+    }
+  }
+}
+
 async function start() {
   try {
-    const fs = require('fs');
-    const sql = fs.readFileSync(path.join(__dirname, 'db/init.sql'), 'utf8');
-    await db.query(sql);
-    console.log('✓ Database schema ready');
-
+    await initDb();
     app.listen(PORT, () => console.log(`✓ Server listening on port ${PORT}`));
   } catch (err) {
-    console.error('Failed to start:', err);
+    console.error('Failed to start after retries:', err.message);
     process.exit(1);
   }
 }

@@ -80,7 +80,7 @@ export default function Step3Game() {
             transition={{ type: 'spring', stiffness: 260 }}
           >
             {/* Score reveal */}
-            <div className="card mb-4 text-center" style={{ padding: '2.5rem 1.5rem' }}>
+            <div style={{ background:'rgb(20,20,20)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:'2px', padding:'2.5rem 1.5rem', textAlign:'center', marginBottom:'1rem' }}>
               <p className="section-label mx-auto mb-4">Round Complete</p>
               <p style={{
                 fontFamily: '"JetBrains Mono", monospace',
