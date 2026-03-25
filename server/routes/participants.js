@@ -2,6 +2,7 @@ const express = require('express');
 const router  = express.Router();
 const db      = require('../db');
 const { screenshotUpload, videoUpload, uploadToCloudinary } = require('../middleware/upload');
+const { notifyRegistration, notifyVideoSubmission } = require('../utils/email');
 
 const STEP1_POINTS      = parseInt(process.env.STEP1_POINTS)      || 100;
 const STEP2_POINTS      = parseInt(process.env.STEP2_POINTS)      || 150;
@@ -42,6 +43,7 @@ router.post('/', async (req, res) => {
         STEP1_POINTS,
       ]
     );
+    notifyRegistration(result.rows[0]); // fire-and-forget
     res.status(201).json({ participant: result.rows[0] });
   } catch (err) {
     console.error('Register error:', err);
@@ -159,6 +161,7 @@ router.post('/:id/video', videoUpload.single('video'), async (req, res) => {
        RETURNING *`,
       [STEP4_POINTS, upload.secure_url, req.params.id]
     );
+    notifyVideoSubmission(result.rows[0]); // fire-and-forget
     res.json({ participant: result.rows[0] });
   } catch (err) {
     console.error('Video step error:', err);

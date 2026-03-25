@@ -8,6 +8,7 @@ import Step3Game     from './pages/Step3Game.jsx';
 import Step4Video    from './pages/Step4Video.jsx';
 import Complete      from './pages/Complete.jsx';
 import Leaderboard   from './pages/Leaderboard.jsx';
+import Admin         from './pages/Admin.jsx';
 
 export default function App() {
   return (
@@ -22,6 +23,7 @@ export default function App() {
             <Route path="/step/4"      element={<Step4Video />} />
             <Route path="/complete"    element={<Complete />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/admin"       element={<Admin />} />
             <Route path="*"            element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>

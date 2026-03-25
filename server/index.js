@@ -40,6 +40,7 @@ app.use('/api/', rateLimit({
 // ─── API Routes ───────────────────────────────────────────────────────────────
 app.use('/api/participants', require('./routes/participants'));
 app.use('/api/leaderboard',  require('./routes/leaderboard'));
+app.use('/api/admin',        require('./routes/admin'));
 
 // ─── Health check ─────────────────────────────────────────────────────────────
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
