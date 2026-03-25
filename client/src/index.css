@@ -61,26 +61,6 @@
     border-radius: 2px;
   }
 
-  /* ── Cards — dark card with subtle white border, gold glow on hover ── */
-  .card {
-    padding: 1.5rem;
-    background: rgb(20, 20, 20);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 2px;
-    transition: border-color 0.2s, box-shadow 0.2s;
-  }
-  .card:hover {
-    border-color: rgba(255, 215, 0, 0.3);
-    box-shadow: rgba(255,215,0,0.12) 0px 0px 20px -6px inset;
-  }
-  :not(.dark) .card {
-    background: #fff;
-    border: 1px solid rgba(0,0,0,0.08);
-  }
-  :not(.dark) .card:hover {
-    border-color: rgba(251,178,56,0.4);
-    box-shadow: rgba(251,178,56,0.1) 0px 0px 20px -6px inset;
-  }
 
   /* ── Inputs ── */
   .input {
@@ -142,6 +122,20 @@
 
 /* ── Game canvas cursor ───────────────────────────────────────────────── */
 #game-canvas { cursor: crosshair; touch-action: none; }
+
+/* ── .card — top-level (no @layer) so it cannot be overridden by Tailwind base/components/utilities ── */
+.card {
+  padding: 1.5rem;
+  background: rgb(20, 20, 20) !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  border-radius: 2px;
+  color: #fff;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.card:hover {
+  border-color: rgba(255, 215, 0, 0.3) !important;
+  box-shadow: rgba(255,215,0,0.12) 0px 0px 20px -6px inset;
+}
 
 @keyframes spin {
   from { transform: rotate(0deg); }

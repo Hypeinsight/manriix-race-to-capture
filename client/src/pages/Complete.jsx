@@ -133,7 +133,7 @@ export default function Complete() {
             transition={{ delay: 0.5 }}
             style={{ marginBottom: '2rem' }}
           >
-            <div className="card" style={{ textAlign: 'left' }}>
+            <div style={{ background:'rgb(20,20,20)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:'2px', padding:'1.25rem 1.5rem', textAlign:'left' }}>
               {STEPS.map(({ label, key, done }, i) => (
                 <div
                   key={i}
@@ -182,8 +182,18 @@ export default function Complete() {
             </button>
             <button
               onClick={() => navigate('/')}
-              className="btn-secondary w-full"
-              style={{ fontSize: '13px' }}
+              style={{
+                width:'100%', padding:'14px',
+                background:'transparent',
+                border:'1px solid rgba(255,255,255,0.18)',
+                borderRadius:'2px',
+                color:'rgba(255,255,255,0.7)',
+                fontFamily:'"JetBrains Mono",monospace',
+                fontSize:'12px',
+                textTransform:'uppercase',
+                letterSpacing:'0.1em',
+                cursor:'pointer',
+              }}
             >
               Back to home
             </button>
