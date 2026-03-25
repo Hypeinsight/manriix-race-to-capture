@@ -22,7 +22,7 @@ const screenshotUpload = multer({
 
 const videoUpload = multer({
   storage: memStorage,
-  limits: { fileSize: 200 * 1024 * 1024 }, // 200 MB
+  limits: { fileSize: 50 * 1024 * 1024 }, // 50 MB — keeps Render free-tier RAM safe
   fileFilter: (_req, file, cb) => {
     if (file.mimetype.startsWith('video/')) cb(null, true);
     else cb(new Error('Only video files are accepted'));

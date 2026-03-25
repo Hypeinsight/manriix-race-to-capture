@@ -26,6 +26,7 @@ export default function Step4Video() {
   const [uploaded, setUploaded]   = useState(null);     // file
   const [preview, setPreview]     = useState(null);
   const [loading, setLoading]     = useState(false);
+  const [uploadPct, setUploadPct] = useState(0);
   const [error, setError]         = useState('');
   const fileRef      = useRef(null);
   const mediaRef     = useRef(null);
@@ -91,12 +92,15 @@ export default function Step4Video() {
 
     if (!videoFile) { setError('Please record or upload a video first.'); return; }
 
-    setLoading(true); setError('');
+    setLoading(true); setUploadPct(0); setError('');
     try {
       const fd = new FormData();
       fd.append('video', videoFile);
       const { data } = await api.post(`/participants/${participant.id}/video`, fd, {
         headers: { 'Content-Type': 'multipart/form-data' },
+        onUploadProgress: e => {
+          if (e.total) setUploadPct(Math.round((e.loaded / e.total) * 100));
+        },
       });
       updateParticipant(data.participant);
       navigate('/complete');
@@ -134,9 +138,9 @@ export default function Step4Video() {
             Share Your<br />
             <span style={{ color: '#fed700' }}>Excitement</span>
           </h2>
-          <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)', fontWeight: 300 }}>
+          <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.45)', fontWeight: 300, lineHeight: 1.6 }}>
             Record a short video — this is the <strong style={{ color: '#fed700', fontWeight: 500 }}>most valuable step</strong>.
-            Your video could be featured by Manriix!
+            Keep it <strong style={{ color: '#fff', fontWeight: 400 }}>under 30 seconds</strong> for fastest upload.
           </p>
         </div>
 
@@ -290,12 +294,19 @@ export default function Step4Video() {
         )}
 
         {hasVideo && (
-          <button onClick={handleSubmit} disabled={loading} className="btn-primary w-full">
-            {loading ? (
-              <>Uploading… <span style={{ width: 14, height: 14, border: '2px solid rgba(0,0,0,0.3)', borderTop: '2px solid #000', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.7s linear infinite' }} /></>
-            ) : (
-              <>Claim 300 pts &amp; Finish <ChevronRight size={16} /></>
+          <>
+            <button onClick={handleSubmit} disabled={loading} className="btn-primary w-full">
+              {loading
+                ? <>Uploading {uploadPct > 0 ? `${uploadPct}%` : '…'} <span style={{ width: 14, height: 14, border: '2px solid rgba(0,0,0,0.3)', borderTop: '2px solid #000', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.7s linear infinite' }} /></>
+                : <>Claim 300 pts &amp; Finish <ChevronRight size={16} /></>}
+            </button>
+            {loading && (
+              <div style={{ marginTop: '0.5rem', height: 3, background: 'rgba(255,255,255,0.06)', borderRadius: 2, overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${uploadPct}%`, background: '#fed700', transition: 'width 0.3s', borderRadius: 2 }} />
+              </div>
             )}
+          </>
+        )}
           </button>
         )}
 

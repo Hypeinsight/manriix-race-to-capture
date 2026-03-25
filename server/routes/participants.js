@@ -134,8 +134,16 @@ router.post('/:id/game', async (req, res) => {
   }
 });
 
-// ─── POST /api/participants/:id/video ─── step 4 (most valuable) ─────────────
-router.post('/:id/video', videoUpload.single('video'), async (req, res) => {
+// ─── POST /api/participants/:id/video ─── step 4 (most valuable) ─────────────────
+router.post('/:id/video', (req, res, next) => {
+  videoUpload.single('video')(req, res, err => {
+    if (err && err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({ error: 'Video is too large. Please keep it under 50 MB (about 60 seconds on a phone).' });
+    }
+    if (err) return res.status(400).json({ error: err.message });
+    next();
+  });
+}, async (req, res) => {
   try {
     const { rows } = await db.query('SELECT * FROM participants WHERE id = $1', [req.params.id]);
     if (!rows.length) return res.status(404).json({ error: 'Not found' });
@@ -144,6 +152,10 @@ router.post('/:id/video', videoUpload.single('video'), async (req, res) => {
       return res.json({ participant: rows[0], alreadyCompleted: true });
     }
     if (!req.file) return res.status(400).json({ error: 'Video file is required' });
+
+    if (!process.env.CLOUDINARY_CLOUD_NAME) {
+      return res.status(503).json({ error: 'Media storage not configured. Please contact the event team.' });
+    }
 
     const upload = await uploadToCloudinary(req.file.buffer, {
       folder:        'manriix-rtc/videos',
