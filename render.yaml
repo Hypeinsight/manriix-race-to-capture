@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: manriix-race-to-capture
+    env: node
+    plan: free
+    buildCommand: npm install && cd server && npm install && cd ../client && npm install && npm run build
+    startCommand: node server/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: manriix-rtc-db
+          property: connectionString
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: INSTAGRAM_URL
+        sync: false
+      - key: STEP1_POINTS
+        value: "100"
+      - key: STEP2_POINTS
+        value: "150"
+      - key: STEP4_POINTS
+        value: "300"
+      - key: POINTS_PER_CAPTURE
+        value: "15"
+
+databases:
+  - name: manriix-rtc-db
+    databaseName: manriix_rtc
+    user: manriix_user
+    plan: free

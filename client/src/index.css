@@ -1,0 +1,160 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-weight: 300;
+    background: #000;
+    color: #fff;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior: none;
+  }
+
+  .dark body  { background: #000000; color: #ffffff; }
+  :not(.dark) body { background: #f4f4f0; color: #0d0d0d; }
+
+  /* Inter weight helpers — matching manriix.com's --g-regular-weight: 300 */
+  strong, b { font-weight: 500; }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar       { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 99px; }
+}
+
+@layer components {
+  /* ── Buttons — mirrors manriix.com style (2px radius, uppercase, letter-spacing) ── */
+  .btn-primary {
+    @apply relative inline-flex items-center justify-center gap-2
+           px-6 py-3.5 font-semibold text-sm uppercase tracking-widest
+           text-gray-900
+           transition-all duration-200
+           active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed
+           focus-visible:outline-none;
+    background: linear-gradient(60deg, #fed700 0%, #ffed4a 100%);
+    border-radius: 2px;
+  }
+  .btn-primary:not(:disabled):hover {
+    background: linear-gradient(60deg, #ffd700 0%, #fed700 100%);
+    box-shadow: 0 0 28px rgba(255, 215, 0, 0.4);
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2
+           px-6 py-3.5 font-semibold text-sm uppercase tracking-widest
+           text-white border border-white/20
+           bg-transparent
+           hover:border-brand-gold/60 hover:text-brand-gold
+           transition-all duration-200 active:scale-95
+           focus-visible:outline-none;
+    border-radius: 2px;
+  }
+
+  /* ── Cards — dark card with subtle white border, gold glow on hover ── */
+  .card {
+    padding: 1.5rem;
+    background: rgb(20, 20, 20);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 2px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .card:hover {
+    border-color: rgba(255, 215, 0, 0.3);
+    box-shadow: rgba(255,215,0,0.12) 0px 0px 20px -6px inset;
+  }
+  :not(.dark) .card {
+    background: #fff;
+    border: 1px solid rgba(0,0,0,0.08);
+  }
+  :not(.dark) .card:hover {
+    border-color: rgba(251,178,56,0.4);
+    box-shadow: rgba(251,178,56,0.1) 0px 0px 20px -6px inset;
+  }
+
+  /* ── Inputs ── */
+  .input {
+    @apply w-full border px-4 py-3
+           bg-white/5 text-white
+           placeholder-white/30 text-sm
+           focus:outline-none
+           transition-colors duration-150;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 4px;
+  }
+  .input:focus {
+    border-color: rgba(255,215,0,0.5);
+    background: rgba(255,215,0,0.03);
+  }
+  :not(.dark) .input {
+    @apply bg-white border-gray-200 text-gray-900 placeholder-gray-400;
+  }
+
+  /* ── Section label — JetBrains Mono, uppercase, like the site ── */
+  .section-label {
+    @apply inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest;
+    font-family: 'JetBrains Mono', monospace;
+    color: rgba(255,255,255,0.5);
+    background: rgba(255,215,0,0.06);
+    border: 1px solid rgba(255,215,0,0.15);
+    border-radius: 2px;
+    padding: 4px 14px;
+    letter-spacing: 0.12em;
+  }
+
+  /* ── Step badge ── */
+  .step-badge {
+    @apply section-label;
+    color: #fbb238;
+    background: rgba(251,178,56,0.08);
+    border-color: rgba(251,178,56,0.2);
+  }
+
+  /* ── Points pill ── */
+  .points-pill {
+    @apply inline-flex items-center gap-1 text-xs font-mono font-bold uppercase tracking-wider;
+    font-family: 'JetBrains Mono', monospace;
+    color: #fed700;
+    background: rgba(254,215,0,0.1);
+    border: 1px solid rgba(254,215,0,0.25);
+    border-radius: 2px;
+    padding: 4px 10px;
+  }
+
+  /* ── Stat number — JetBrains Mono large ── */
+  .stat-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 100;
+    color: #fed700;
+    line-height: 1;
+  }
+}
+
+/* ── Game canvas cursor ───────────────────────────────────────────────── */
+#game-canvas { cursor: crosshair; touch-action: none; }
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+/* ── Page transition wrapper ─────────────────────────────────────────────────── */
+.page-enter { opacity: 0; transform: translateY(16px); }
+.page-enter-active {
+  opacity: 1; transform: translateY(0);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
