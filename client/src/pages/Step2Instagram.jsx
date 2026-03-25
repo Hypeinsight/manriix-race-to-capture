@@ -6,7 +6,7 @@ import Layout from '../components/Layout.jsx';
 import { useParticipant } from '../context/ParticipantContext.jsx';
 import api from '../lib/api.js';
 
-const INSTAGRAM_URL = import.meta.env.VITE_INSTAGRAM_URL || 'https://www.instagram.com/manriix_robot/';
+const INSTAGRAM_URL = import.meta.env.VITE_INSTAGRAM_URL || 'https://www.instagram.com/manriix_/';
 
 export default function Step2Instagram() {
   const navigate = useNavigate();

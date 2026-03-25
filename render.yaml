@@ -19,7 +19,7 @@ services:
       - key: CLOUDINARY_API_SECRET
         sync: false
       - key: INSTAGRAM_URL
-        sync: false
+        value: "https://www.instagram.com/manriix_/"
       - key: STEP1_POINTS
         value: "100"
       - key: STEP2_POINTS
