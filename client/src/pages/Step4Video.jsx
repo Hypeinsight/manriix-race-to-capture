@@ -307,8 +307,6 @@ export default function Step4Video() {
             )}
           </>
         )}
-          </button>
-        )}
 
         {/* Skip */}
         <button
