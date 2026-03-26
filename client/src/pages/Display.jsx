@@ -202,6 +202,21 @@ function PrizeBanner() {
           transition={{ duration: 0.45 }}
           style={{ flex: 1, border: `1px solid ${p.color}1a`, borderRadius: 4, padding: '14px 18px' }}
         >
+          {/* Trophy — floats with staggered delay */}
+          <motion.div
+            animate={{ y: [0, -5, 0] }}
+            transition={{ duration: 2, repeat: Infinity, delay: i * 0.5, ease: 'easeInOut' }}
+            style={{ marginBottom: 10, display: 'inline-block' }}
+          >
+            <Trophy
+              size={32}
+              style={{
+                color: p.color,
+                filter: active === i ? `drop-shadow(0 0 8px ${p.color}90)` : 'none',
+                transition: 'filter 0.4s',
+              }}
+            />
+          </motion.div>
           <div style={{ fontFamily: 'JetBrains Mono', fontSize: 11, color: `${p.color}80`, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 8 }}>
             {p.place} PLACE
           </div>
