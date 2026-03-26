@@ -10,14 +10,26 @@ import { useState } from 'react';
 export default function Step3Game() {
   const navigate = useNavigate();
   const { participant, updateParticipant } = useParticipant();
-  const [result, setResult] = useState(null);   // { captures, points } after game ends
+  // Restore result from sessionStorage so a refresh can't reset the game
+  const [result, setResult] = useState(() => {
+    if (!participant?.id) return null;
+    try {
+      const s = sessionStorage.getItem(`manriix-game-${participant.id}`);
+      return s ? JSON.parse(s) : null;
+    } catch { return null; }
+  });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
   if (!participant) { navigate('/step/1'); return null; }
+  // Already submitted - skip straight to next step
+  if (participant.step3_completed) { navigate('/step/4'); return null; }
 
   const handleGameComplete = (captures, points) => {
-    setResult({ captures, points });
+    const r = { captures, points };
+    setResult(r);
+    // Persist immediately so refresh shows result, not a fresh game
+    sessionStorage.setItem(`manriix-game-${participant.id}`, JSON.stringify(r));
   };
 
   const handleContinue = async () => {
@@ -28,6 +40,7 @@ export default function Step3Game() {
         captures: result.captures,
         points:   result.points,
       });
+      sessionStorage.removeItem(`manriix-game-${participant.id}`);
       updateParticipant(data.participant);
       navigate('/step/4');
     } catch (err) {
