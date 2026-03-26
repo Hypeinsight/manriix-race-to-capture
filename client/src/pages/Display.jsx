@@ -39,14 +39,14 @@ function StepSlide({ slide }) {
   return (
     <div style={{
       flex: 1, display: 'flex', flexDirection: 'column',
-      justifyContent: 'center', padding: '20px 36px',
+      justifyContent: 'center', padding: '24px 40px',
       minHeight: 0, overflow: 'hidden',
     }}>
       {/* Badges */}
       <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, marginBottom: 16 }}>
         <span style={{
           display: 'inline-flex', alignItems: 'center', gap: 5,
-          fontFamily: 'JetBrains Mono', fontSize: 10, letterSpacing: '0.1em',
+          fontFamily: 'JetBrains Mono', fontSize: 13, letterSpacing: '0.1em',
           textTransform: 'uppercase', color: slide.color,
           background: `${slide.color}14`, border: `1px solid ${slide.color}40`,
           borderRadius: 2, padding: '4px 10px',
@@ -55,7 +55,7 @@ function StepSlide({ slide }) {
         </span>
         <span style={{
           display: 'inline-flex', alignItems: 'center',
-          fontFamily: 'JetBrains Mono', fontSize: 10, fontWeight: 700,
+          fontFamily: 'JetBrains Mono', fontSize: 13, fontWeight: 700,
           letterSpacing: '0.08em', textTransform: 'uppercase',
           color: '#fed700', background: 'rgba(254,215,0,0.1)',
           border: '1px solid rgba(254,215,0,0.25)', borderRadius: 2, padding: '4px 10px',
@@ -64,8 +64,8 @@ function StepSlide({ slide }) {
         </span>
         {slide.hot && (
           <span style={{
-            background: '#fbb238', color: '#000',
-            fontFamily: 'JetBrains Mono', fontSize: 9, fontWeight: 700,
+        background: '#fbb238', color: '#000',
+            fontFamily: 'JetBrains Mono', fontSize: 12, fontWeight: 700,
             letterSpacing: '0.1em', textTransform: 'uppercase',
             borderRadius: 3, padding: '4px 10px',
           }}>
@@ -77,8 +77,8 @@ function StepSlide({ slide }) {
       {/* Large number */}
       <div style={{
         fontFamily: 'JetBrains Mono', fontWeight: 100,
-        fontSize: 'clamp(72px,10vh,130px)', color: slide.color,
-        lineHeight: 1, marginBottom: 14,
+        fontSize: 'clamp(90px,12vh,160px)', color: slide.color,
+        lineHeight: 1, marginBottom: 18,
       }}>
         {String(slide.num).padStart(2, '0')}
       </div>
@@ -86,10 +86,10 @@ function StepSlide({ slide }) {
       {/* Title */}
       <h2 style={{
         fontFamily: 'Inter', fontWeight: 100,
-        fontSize: 'clamp(2.2rem,5vh,5.5rem)',
+        fontSize: 'clamp(2.8rem,6.5vh,7rem)',
         lineHeight: 0.9, color: '#fff',
         textTransform: 'uppercase', letterSpacing: '-0.02em',
-        margin: '0 0 18px',
+        margin: '0 0 22px',
       }}>
         {slide.title}<br />
         <span style={{ color: slide.color }}>{slide.titleAccent}</span>
@@ -97,10 +97,10 @@ function StepSlide({ slide }) {
 
       {/* Description */}
       <p style={{
-        fontSize: 'clamp(15px,2vh,22px)',
+        fontSize: 'clamp(17px,2.4vh,28px)',
         color: 'rgba(255,255,255,0.55)',
         lineHeight: 1.65, fontWeight: 300,
-        margin: 0, maxWidth: 600,
+        margin: 0, maxWidth: 700,
       }}>
         {slide.desc}
       </p>
@@ -259,7 +259,7 @@ export default function Display() {
       background: '#000', color: '#fff',
       fontFamily: 'Inter, system-ui, sans-serif',
       display: 'grid',
-      gridTemplateRows: '6vh 20vh 1fr',
+      gridTemplateRows: '6vh 36vh 1fr',
       userSelect: 'none',
     }}>
 
@@ -310,18 +310,11 @@ export default function Display() {
         borderBottom: '1px solid rgba(255,255,255,0.06)',
         background: 'rgba(0,0,0,0.4)',
       }}>
-        <motion.div
-          animate={{ boxShadow: ['0 0 0 0 rgba(251,178,56,0.5)', '0 0 0 12px rgba(251,178,56,0)', '0 0 0 0 rgba(251,178,56,0)'] }}
-          transition={{ duration: 2.2, repeat: Infinity }}
-          style={{ padding: 12, background: '#fff', borderRadius: 10 }}
-        >
-          <img
+        <img
             src="/qr.png" alt="QR Code"
-            width={170} height={170}
-            style={{ display: 'block' }}
-            onError={e => { e.currentTarget.style.background = '#141414'; e.currentTarget.style.width = '170px'; e.currentTarget.style.height = '170px'; }}
+            style={{ display: 'block', height: '88%', width: 'auto', maxWidth: '90%', objectFit: 'contain' }}
+            onError={e => { e.currentTarget.style.background = '#141414'; e.currentTarget.style.height = '88%'; }}
           />
-        </motion.div>
       </section>
 
       {/* ── ROW 3: Unified carousel ─────────────────────────────────────── */}
