@@ -50,6 +50,7 @@ export default function Step3Game() {
           <div className="flex items-center gap-2 mb-3">
             <span className="step-badge"><Camera size={11} /> Step 3 of 4</span>
             <span className="points-pill">15 pts / capture</span>
+            <span className="points-pill" style={{ background: 'rgba(251,178,56,0.15)', color: '#fbb238', border: '1px solid rgba(251,178,56,0.3)' }}>×2–×3 robots</span>
           </div>
           <h2 style={{
             fontFamily: 'Inter',
@@ -67,7 +68,7 @@ export default function Step3Game() {
           <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)', fontWeight: 300 }}>
             {result
               ? 'Round complete! See your score below.'
-              : 'Tap when a car is inside the viewfinder. You have 15 seconds.'}
+              : 'Tap when a car is inside the viewfinder. You have 15 seconds. Capture a Manriix robot to activate a score multiplier.'}
           </p>
         </div>
 
