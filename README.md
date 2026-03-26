@@ -1,6 +1,6 @@
 # Manriix — Race to Capture
 
-Interactive gamified web app for the **Colombo Motor Show 2026**, built around **Manriix**, Sri Lanka's first autonomous photography and advertising robot.
+Interactive gamified web app for the **Motor & EV Technology Show 2026**, built around **Manriix**
 
 Users scan a QR code, complete 4 challenges to earn points, and compete on a live leaderboard.
 
