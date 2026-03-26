@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Video, Upload, CheckCircle2, ChevronRight, Mic, Square } from 'lucide-react';
@@ -15,7 +15,13 @@ import { useParticipant } from '../context/ParticipantContext.jsx';
 import api from '../lib/api.js';
 import { playFanfare } from '../lib/sounds.js';
 
-const PROMPT = `"I'm so excited to be here at the Colombo Motor Show 2026 — and even more excited to meet Manriix, Sri Lanka's first autonomous photography and advertising robot!"`;
+const PROMPTS = [
+  `"I'm so excited to be here at the Motor and EV Technology Show 2026 - and even more excited to meet Manriix, Sri Lanka's first autonomous photography and advertising robot!"`,
+  `"We're at the Motor and EV Technology Show 2026 and you have to check this out - meet Manriix, Sri Lanka's first autonomous photography and advertising robot!"`,
+  `"Just met Manriix at the Motor and EV Technology Show 2026 - this is Sri Lanka's first autonomous photography and advertising robot, and it is incredible!"`,
+  `"This is the most exciting thing at the Motor and EV Technology Show 2026 - Manriix, Sri Lanka's very first autonomous photography and advertising robot!"`,
+  `"I'm live at the Motor and EV Technology Show 2026 and I just had to share this - meet Manriix, Sri Lanka's first autonomous photography and advertising robot!"`,
+];
 
 export default function Step4Video() {
   const navigate = useNavigate();
@@ -34,6 +40,8 @@ export default function Step4Video() {
   const streamRef    = useRef(null);
   const chunksRef    = useRef([]);
   const videoPreview = useRef(null);
+
+  const prompt = useMemo(() => PROMPTS[Math.floor(Math.random() * PROMPTS.length)], []);
 
   if (!participant) { navigate('/step/1'); return null; }
 
@@ -159,7 +167,7 @@ export default function Step4Video() {
             Say this in your video
           </p>
           <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.85)', lineHeight: 1.6, fontStyle: 'italic', fontWeight: 300 }}>
-            {PROMPT}
+            {prompt}
           </p>
         </div>
 

@@ -65,12 +65,32 @@ export default function Step3Game() {
             Race to<br />
             <span style={{ color: '#fed700' }}>Capture</span>
           </h2>
-          <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)', fontWeight: 300 }}>
-            {result
-              ? 'Round complete! See your score below.'
-              : 'Tap when a car is inside the viewfinder. You have 15 seconds. Capture a Manriix robot to activate a score multiplier.'}
-          </p>
+          {result && (
+            <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)', fontWeight: 300 }}>
+              Round complete! See your score below.
+            </p>
+          )}
         </div>
+
+        {/* Instructions — shown before the game starts */}
+        {!result && (
+          <div style={{ background: 'rgb(14,14,14)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '2px', padding: '1rem 1.25rem', marginBottom: '1rem' }}>
+            <p style={{ fontFamily: '"JetBrains Mono", monospace', fontSize: '10px', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.12em', margin: '0 0 0.75rem' }}>How to play</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+              {[
+                'Wait for a car to enter the viewfinder in the centre of the screen.',
+                'Tap the screen to capture it - timing is everything.',
+                'Spot the Manriix robot and capture it to unlock a x2 or x3 score multiplier for your next 3 captures.',
+                '15 seconds only - one attempt - most points wins.',
+              ].map((text, i) => (
+                <div key={i} style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
+                  <span style={{ fontFamily: '"JetBrains Mono", monospace', fontSize: '11px', color: '#fbb238', fontWeight: 700, minWidth: 16, paddingTop: 1, flexShrink: 0 }}>{i + 1}</span>
+                  <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.65)', margin: 0, lineHeight: 1.55, fontWeight: 300 }}>{text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Game area */}
         {!result ? (
