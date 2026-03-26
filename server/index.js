@@ -47,9 +47,21 @@ app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 
 // ─── Serve React build in production ─────────────────────────────────────────
 if (process.env.NODE_ENV === 'production') {
+  const fs = require('fs');
   const distPath = path.join(__dirname, '../client/dist');
+  const distExists = fs.existsSync(distPath);
+  console.log(`Static files path: ${distPath} (exists: ${distExists})`);
+  if (!distExists) {
+    console.error('WARNING: client/dist not found — frontend will not be served correctly');
+  }
   app.use(express.static(distPath));
-  app.get('*', (_req, res) => res.sendFile(path.join(distPath, 'index.html')));
+  app.get('*', (_req, res) => {
+    const indexPath = path.join(distPath, 'index.html');
+    if (!fs.existsSync(indexPath)) {
+      return res.status(503).send('App build not found. Please redeploy.');
+    }
+    res.sendFile(indexPath);
+  });
 }
 
 // ─── Boot ─────────────────────────────────────────────────────────────────────
