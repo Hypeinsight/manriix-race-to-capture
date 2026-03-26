@@ -110,8 +110,8 @@ function Step3Visual() {
       {/* Car */}
       <motion.div
         style={{ position: 'absolute', bottom: 29 }}
-        animate={{ x: ['-130px', 'calc(100% + 130px)'] }}
-        transition={{ duration: 1.5, repeat: Infinity, ease: [0.2, 0, 1, 1], repeatDelay: 0.85 }}
+        animate={{ x: ['-160px', 'calc(100vw + 60px)'] }}
+        transition={{ duration: 2.4, repeat: Infinity, ease: [0.15, 0, 0.9, 1], repeatDelay: 0.7 }}
       >
         <div style={{ position: 'relative', width: 108 }}>
           {/* Cabin */}
@@ -200,12 +200,12 @@ function PrizeBanner() {
             background:   active === i ? `${p.color}0f` : `${p.color}05`,
           }}
           transition={{ duration: 0.45 }}
-          style={{ flex: 1, border: `1px solid ${p.color}1a`, borderRadius: 4, padding: '10px 14px' }}
+          style={{ flex: 1, border: `1px solid ${p.color}1a`, borderRadius: 4, padding: '14px 18px' }}
         >
-          <div style={{ fontFamily: 'JetBrains Mono', fontSize: 9, color: `${p.color}90`, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 5 }}>
+          <div style={{ fontFamily: 'JetBrains Mono', fontSize: 11, color: `${p.color}80`, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 8 }}>
             {p.place} PLACE
           </div>
-          <div style={{ fontFamily: 'JetBrains Mono', fontWeight: 700, fontSize: 'clamp(13px,1.8vh,20px)', color: p.color, letterSpacing: '0.02em' }}>
+          <div style={{ fontFamily: 'JetBrains Mono', fontWeight: 700, fontSize: 'clamp(20px,2.8vh,36px)', color: p.color, letterSpacing: '0.02em', lineHeight: 1 }}>
             {p.amount}
           </div>
         </motion.div>
