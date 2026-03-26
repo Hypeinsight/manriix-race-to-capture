@@ -13,6 +13,7 @@ const PORT = process.env.PORT || 5000;
 const allowedOrigins = [
   process.env.CLIENT_URL || 'http://localhost:5173',
   /\.onrender\.com$/,
+  /\.manriix\.com$/,
 ];
 app.use(cors({
   origin: (origin, cb) => {
