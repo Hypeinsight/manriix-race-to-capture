@@ -24,7 +24,7 @@ router.get('/', async (_req, res) => {
         created_at
       FROM participants
       ORDER BY total_points DESC, created_at ASC
-      LIMIT 100
+      LIMIT 500
     `);
 
     const leaderboard = rows.map((row, i) => ({ ...row, rank: i + 1 }));

@@ -179,9 +179,9 @@ export default function Leaderboard() {
             return (
               <motion.div
                 key={row.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.04 }}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2, delay: Math.min(i * 0.02, 0.3) }}
                 style={{
                   background: isMe ? 'rgba(254,215,0,0.05)' : rs.bg,
                   border: `1px solid ${isMe ? 'rgba(254,215,0,0.3)' : rs.border}`,
