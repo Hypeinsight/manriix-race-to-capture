@@ -13,6 +13,10 @@ const ROBOT_SPAWN_CHANCE = 0.18;    // ~1 in 5 spawns is a Manriix robot
 const ROBOT_MULTIPLIERS  = [2, 3];  // possible multiplier values on capture
 const MULTIPLIER_LASTS   = 3;       // number of car captures the buff applies to
 
+// Preload Manriix favicon as the in-game robot sprite
+const _robotImg = new Image();
+_robotImg.src = '/favicon.png';
+
 // ─── Car drawing ──────────────────────────────────────────────────────────────
 
 function drawWheel(ctx, x, y, r) {
@@ -184,66 +188,40 @@ function drawMuscleCar(ctx, cx, by, w, h, color) {
   drawWheel(ctx, r - w*0.18, wy, wr);
 }
 
-// ─── Manriix robot drawing ────────────────────────────────────────────────────
+// ─── Manriix robot drawing (uses favicon sprite) ────────────────────────────────
 
 function drawRobot(ctx, cx, by, w, h, multiplier) {
-  const l = cx - w / 2, r = cx + w / 2;
-  const wr = h * 0.22, wy = by - wr * 0.85;
+  const imgSize = w * 1.15;           // square — taller than the collision box
+  const iy      = by - imgSize;       // top of image, bottom aligns with lane floor
 
-  // Shadow
-  ctx.save(); ctx.globalAlpha = 0.28;
+  // Ground shadow
+  ctx.save(); ctx.globalAlpha = 0.35;
   ctx.fillStyle = '#000';
-  ctx.beginPath(); ctx.ellipse(cx, by + 2, w * 0.38, 4, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(cx, by + 1, imgSize * 0.36, 4, 0, 0, Math.PI * 2); ctx.fill();
   ctx.restore();
 
-  // Chassis platform between wheels
-  ctx.fillStyle = '#1c1c1c';
-  ctx.fillRect(l + w * 0.14, by - wr * 1.6, w * 0.72, wr * 0.5);
+  // Amber radial glow behind icon
+  const grad = ctx.createRadialGradient(cx, iy + imgSize * 0.5, 0, cx, iy + imgSize * 0.5, imgSize * 0.6);
+  grad.addColorStop(0, 'rgba(251,178,56,0.28)');
+  grad.addColorStop(1, 'rgba(251,178,56,0)');
+  ctx.fillStyle = grad;
+  ctx.beginPath(); ctx.arc(cx, iy + imgSize * 0.5, imgSize * 0.6, 0, Math.PI * 2); ctx.fill();
 
-  // Main body block
-  const bx = l + w * 0.11, bw = w * 0.78;
-  const bt = by - h * 0.87, bh = h * 0.58;
-  ctx.fillStyle = '#111';
-  ctx.fillRect(bx, bt, bw, bh);
+  // Manriix favicon image
+  if (_robotImg.complete && _robotImg.naturalWidth > 0) {
+    ctx.drawImage(_robotImg, cx - imgSize / 2, iy, imgSize, imgSize);
+  }
 
-  // Amber border glow
-  ctx.strokeStyle = '#fbb238';
-  ctx.lineWidth = 1.5;
-  ctx.shadowColor = '#fbb238';
-  ctx.shadowBlur = 10;
-  ctx.strokeRect(bx, bt, bw, bh);
-  ctx.shadowBlur = 0;
-
-  // Camera lens — Manriix eye
-  const lx = cx, ly = bt + bh * 0.52;
-  const lr = h * 0.14;
-  ctx.fillStyle = '#2a2a2a';
-  ctx.beginPath(); ctx.arc(lx, ly, lr * 1.25, 0, Math.PI * 2); ctx.fill();
-  ctx.strokeStyle = '#fbb238'; ctx.lineWidth = 1;
-  ctx.shadowColor = '#fbb238'; ctx.shadowBlur = 8;
-  ctx.stroke();
-  ctx.fillStyle = '#050505';
-  ctx.beginPath(); ctx.arc(lx, ly, lr, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = '#fbb238'; ctx.shadowBlur = 12;
-  ctx.beginPath(); ctx.arc(lx, ly, lr * 0.42, 0, Math.PI * 2); ctx.fill();
-  ctx.shadowBlur = 0;
-  ctx.fillStyle = 'rgba(255,255,255,0.5)';
-  ctx.beginPath(); ctx.arc(lx - lr * 0.32, ly - lr * 0.28, lr * 0.17, 0, Math.PI * 2); ctx.fill();
-
-  // Multiplier badge at top of body
+  // ×N multiplier badge above the icon
   ctx.fillStyle = '#fed700';
   ctx.shadowColor = '#fed700';
-  ctx.shadowBlur = 8;
-  ctx.font = `700 ${Math.max(9, Math.round(h * 0.22))}px "JetBrains Mono", monospace`;
+  ctx.shadowBlur = 10;
+  ctx.font = `700 ${Math.max(10, Math.round(w * 0.18))}px "JetBrains Mono", monospace`;
   ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(`\u00d7${multiplier}`, cx, bt + bh * 0.16);
+  ctx.textBaseline = 'bottom';
+  ctx.fillText(`\u00d7${multiplier}`, cx, iy - 2);
   ctx.shadowBlur = 0;
   ctx.textBaseline = 'alphabetic';
-
-  // Wheels
-  drawWheel(ctx, l + w * 0.2, wy, wr);
-  drawWheel(ctx, r - w * 0.2, wy, wr);
 }
 
 const CAR_DRAWERS = { sports: drawSportsCar, gt: drawGTCar, muscle: drawMuscleCar };
