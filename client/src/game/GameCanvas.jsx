@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { playCapture, playMiss, playShutter, playCarWhoosh, playTick, playGameOver, startEngine } from '../lib/sounds.js';
 
 const GAME_DURATION  = 15;    // seconds
 const CAPTURE_W      = 130;   // capture zone width px
@@ -266,10 +267,12 @@ export default function GameCanvas({ onComplete }) {
   const canvasRef   = useRef(null);
   const stateRef    = useRef({
     cars: [], particles: [], scorePopups: [],
-    startTime: null, lastSpawn: 0, nextSpawnDelay: 2000,
+    startTime: null, lastSpawn: 0, nextSpawnDelay: 1800,
     captures: 0, animId: null, isRunning: false,
     flashAlpha: 0, missShake: 0, t: 0,
     captureZoneFlash: 0,
+    lastTickSecond: -1,   // for countdown beeps
+    engine: null,         // engine ambience handle
   });
   const [phase, setPhase]      = useState('idle');   // idle | playing | done
   const [timeLeft, setTimeLeft] = useState(GAME_DURATION);
@@ -310,9 +313,34 @@ export default function GameCanvas({ onComplete }) {
 
     if (remaining <= 0) {
       s.isRunning = false;
+      s.engine?.stop(); s.engine = null;
+      playGameOver();
       setPhase('done');
       onComplete(s.captures);
       return;
+    }
+
+    // ── Progressive difficulty ─────────────────────────────────────────────
+    // difficulty: 0 at start → 1 at end
+    const difficulty = Math.min(elapsed / GAME_DURATION, 1);
+
+    // Spawn delay: 1800ms → 550ms
+    const minDelay = 1800 - difficulty * 1250;
+    const maxDelay = minDelay + 600;
+
+    // Speed: cw/0.95s → cw/0.38s (2.5× faster at end)
+    const minCross = 0.95 - difficulty * 0.57;
+
+    // Update engine pitch every 0.5s
+    if (s.engine && Math.floor(elapsed * 2) !== Math.floor((elapsed - dt) * 2)) {
+      s.engine.setSpeed(difficulty);
+    }
+
+    // Countdown beeps in last 5 seconds
+    const curSecond = Math.ceil(remaining);
+    if (remaining <= 5 && curSecond !== s.lastTickSecond) {
+      s.lastTickSecond = curSecond;
+      playTick(remaining <= 1);
     }
 
     // Spawn cars
@@ -322,19 +350,29 @@ export default function GameCanvas({ onComplete }) {
       const laneY   = roadTop + (lane + 0.78) * laneH;
       const w       = 145 + Math.random() * 40;
       const h       = w * 0.32;
+      const carSpeed = cw / (minCross + Math.random() * 0.2);
       s.cars.push({
         id:    ts,
         x:     cw + w / 2 + 20,
         y:     laneY,
         w, h,
-        speed:  cw / (0.55 + Math.random() * 0.4),   // px/s
-        color:  CAR_COLORS[Math.floor(Math.random() * CAR_COLORS.length)],
-        type:   CAR_TYPES[Math.floor(Math.random() * CAR_TYPES.length)],
+        speed: carSpeed,
+        color: CAR_COLORS[Math.floor(Math.random() * CAR_COLORS.length)],
+        type:  CAR_TYPES[Math.floor(Math.random() * CAR_TYPES.length)],
         captured: false,
+        whooshed: false,
       });
       s.lastSpawn = ts;
-      s.nextSpawnDelay = 1400 + Math.random() * 1200;
+      s.nextSpawnDelay = minDelay + Math.random() * (maxDelay - minDelay);
     }
+
+    // Play whoosh when car fully enters screen from right
+    s.cars.forEach(car => {
+      if (!car.whooshed && car.x < cw - car.w * 0.3) {
+        car.whooshed = true;
+        playCarWhoosh(car.speed / (cw / 0.7));
+      }
+    });
 
     // Update cars
     s.cars.forEach(c => { c.x -= c.speed * dt; });
@@ -490,14 +528,18 @@ export default function GameCanvas({ onComplete }) {
     s.animId = requestAnimationFrame(tick);
   }, [onComplete]);
 
-  // ── Start game ─────────────────────────────────────────────────────────────
+  // ── Start game ─────────────────────────────────────────────────────────────────────
   const startGame = () => {
     const s = stateRef.current;
+    // Stop any previous engine
+    s.engine?.stop();
     s.cars = []; s.particles = []; s.scorePopups = [];
     s.captures = 0; s.flashAlpha = 0; s.missShake = 0;
     s.captureZoneFlash = 0; s.lastSpawn = 0; s.nextSpawnDelay = 1800;
+    s.lastTickSecond = -1;
     s.isRunning = true; s.prevTs = null; s.t = 0;
     s.startTime = performance.now();
+    s.engine = startEngine();
     setCaptures(0); setTimeLeft(GAME_DURATION); setPhase('playing');
     s.animId = requestAnimationFrame(tick);
   };
@@ -524,6 +566,7 @@ export default function GameCanvas({ onComplete }) {
         s.captures++;
         s.flashAlpha = 1;
         s.captureZoneFlash = 1;
+        playCapture();
         setCaptures(s.captures);
         // Particles burst
         const midX = czX + CAPTURE_W / 2;
@@ -552,6 +595,9 @@ export default function GameCanvas({ onComplete }) {
     }
     if (!hit) {
       s.missShake = 0.8;
+      playMiss();
+    } else {
+      playShutter(); // extra tactile shutter on every tap that hits
     }
   }, []);
 
@@ -560,6 +606,7 @@ export default function GameCanvas({ onComplete }) {
     return () => {
       const s = stateRef.current;
       s.isRunning = false;
+      s.engine?.stop();
       if (s.animId) cancelAnimationFrame(s.animId);
     };
   }, []);

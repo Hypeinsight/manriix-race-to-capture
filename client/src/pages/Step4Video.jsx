@@ -13,6 +13,7 @@ const darkCard = {
 import Layout from '../components/Layout.jsx';
 import { useParticipant } from '../context/ParticipantContext.jsx';
 import api from '../lib/api.js';
+import { playFanfare } from '../lib/sounds.js';
 
 const PROMPT = `"I'm so excited to be here at the Colombo Motor Show 2026 — and even more excited to meet Manriix, Sri Lanka's first autonomous photography and advertising robot!"`;
 
@@ -103,6 +104,7 @@ export default function Step4Video() {
         },
       });
       updateParticipant(data.participant);
+      playFanfare();
       navigate('/complete');
     } catch (err) {
       setError(err.response?.data?.error || 'Upload failed. Please try again.');

@@ -5,6 +5,7 @@ import { Instagram, Upload, CheckCircle2, ChevronRight, ExternalLink, ImagePlus 
 import Layout from '../components/Layout.jsx';
 import { useParticipant } from '../context/ParticipantContext.jsx';
 import api from '../lib/api.js';
+import { playStepComplete } from '../lib/sounds.js';
 
 const INSTAGRAM_URL = import.meta.env.VITE_INSTAGRAM_URL || 'https://www.instagram.com/manriix_/';
 
@@ -44,6 +45,7 @@ export default function Step2Instagram() {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       updateParticipant(data.participant);
+      playStepComplete();
       navigate('/step/3');
     } catch (err) {
       setError(err.response?.data?.error || 'Upload failed. Please try again.');

@@ -1,6 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Trophy, ChevronRight } from 'lucide-react';
+import { useEffect } from 'react';
+import { playFanfare } from '../lib/sounds.js';
 import { useParticipant } from '../context/ParticipantContext.jsx';
 import ThemeToggle from '../components/ThemeToggle.jsx';
 
@@ -14,6 +16,8 @@ const STEPS = [
 export default function Complete() {
   const navigate    = useNavigate();
   const { participant } = useParticipant();
+
+  useEffect(() => { playFanfare(); }, []);
 
   if (!participant) { navigate('/'); return null; }
 

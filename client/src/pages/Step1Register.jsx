@@ -5,6 +5,7 @@ import { User, Mail, Phone, Building2, ChevronRight, Zap } from 'lucide-react';
 import Layout from '../components/Layout.jsx';
 import { useParticipant } from '../context/ParticipantContext.jsx';
 import api from '../lib/api.js';
+import { playStepComplete } from '../lib/sounds.js';
 
 export default function Step1Register() {
   const navigate = useNavigate();
@@ -33,6 +34,7 @@ export default function Step1Register() {
     try {
       const { data } = await api.post('/participants', form);
       updateParticipant(data.participant);
+      playStepComplete();
       navigate('/step/2');
     } catch (err) {
       setApiError(err.response?.data?.error || 'Something went wrong. Please try again.');
