@@ -324,12 +324,12 @@ export default function GameCanvas({ onComplete }) {
     // difficulty: 0 at start → 1 at end
     const difficulty = Math.min(elapsed / GAME_DURATION, 1);
 
-    // Spawn delay: 1800ms → 550ms
-    const minDelay = 1800 - difficulty * 1250;
-    const maxDelay = minDelay + 600;
+    // Spawn delay: 1100ms → 280ms (starts brisk, ends very intense)
+    const minDelay = 1100 - difficulty * 820;
+    const maxDelay = minDelay + 350;
 
-    // Speed: cw/0.95s → cw/0.38s (2.5× faster at end)
-    const minCross = 0.95 - difficulty * 0.57;
+    // Speed: cw/0.72s → cw/0.22s (3.3× faster at end)
+    const minCross = 0.72 - difficulty * 0.50;
 
     // Update engine pitch every 0.5s
     if (s.engine && Math.floor(elapsed * 2) !== Math.floor((elapsed - dt) * 2)) {
