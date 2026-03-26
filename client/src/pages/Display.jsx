@@ -60,17 +60,17 @@ function LeaderRow({ row, i }) {
       transition={{ delay: Math.min(i * 0.04, 0.3), duration: 0.22 }}
       style={{
         display: 'flex', alignItems: 'center', gap: 14,
-        padding: '10px 14px',
+        padding: '8px 12px',
         background: row.rank <= 3 ? `${RC[row.rank]}0c` : 'rgba(255,255,255,0.02)',
         border: `1px solid ${row.rank <= 3 ? RC[row.rank] + '28' : 'rgba(255,255,255,0.06)'}`,
-        borderRadius: 4, flexShrink: 0,
+        borderRadius: 3, flexShrink: 0,
       }}
     >
-      <span style={{ fontFamily: 'JetBrains Mono', fontWeight: 100, fontSize: row.rank <= 3 ? 22 : 15, color, lineHeight: 1, minWidth: 30, flexShrink: 0 }}>
+      <span style={{ fontFamily: 'JetBrains Mono', fontWeight: 100, fontSize: row.rank <= 3 ? 20 : 14, color, lineHeight: 1, minWidth: 28, flexShrink: 0 }}>
         {String(row.rank).padStart(2, '0')}
       </span>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 13, fontWeight: 400, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginBottom: 3 }}>
+        <div style={{ fontSize: 12, fontWeight: 400, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginBottom: 2 }}>
           {row.first_name} {row.last_name}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -86,7 +86,7 @@ function LeaderRow({ row, i }) {
           </div>
         </div>
       </div>
-      <span style={{ fontFamily: 'JetBrains Mono', fontSize: 17, fontWeight: 500, color, flexShrink: 0 }}>
+      <span style={{ fontFamily: 'JetBrains Mono', fontSize: 15, fontWeight: 500, color, flexShrink: 0 }}>
         {row.total_points}
       </span>
     </motion.div>
@@ -94,48 +94,20 @@ function LeaderRow({ row, i }) {
 }
 
 // ─── QR block ─────────────────────────────────────────────────────────────────
-function QrBlock({ size = 140, compact = false }) {
+function QrBlock({ size = 140 }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: compact ? 16 : 28, justifyContent: 'center' }}>
-      <motion.div
-        animate={{ boxShadow: ['0 0 0 0 rgba(251,178,56,0.5)', '0 0 0 10px rgba(251,178,56,0)', '0 0 0 0 rgba(251,178,56,0)'] }}
-        transition={{ duration: 2.2, repeat: Infinity }}
-        style={{ padding: 12, background: '#fff', borderRadius: 10, flexShrink: 0 }}
-      >
-        <img
-          src="/qr.png" alt="QR Code"
-          width={size} height={size}
-          style={{ display: 'block' }}
-          onError={e => { e.currentTarget.style.background = '#141414'; e.currentTarget.style.width = `${size}px`; e.currentTarget.style.height = `${size}px`; }}
-        />
-      </motion.div>
-      {!compact ? (
-        <div>
-          <div style={{ fontWeight: 100, fontSize: 'clamp(28px,3.5vw,52px)', lineHeight: 1.0, letterSpacing: '-0.02em', textTransform: 'uppercase' }}>
-            Scan to<br /><span style={{ color: '#fbb238' }}>Play</span>
-          </div>
-          <div style={{ fontFamily: 'JetBrains Mono', fontSize: 12, color: 'rgba(255,255,255,0.3)', marginTop: 10, letterSpacing: '0.06em' }}>
-            race.manriix.com
-          </div>
-          <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-            {['Up to 700 pts', 'Top 3 win prizes'].map(t => (
-              <span key={t} style={{ fontFamily: 'JetBrains Mono', fontSize: 10, background: 'rgba(254,215,0,0.07)', border: '1px solid rgba(254,215,0,0.2)', borderRadius: 3, padding: '4px 10px', color: '#fed700', letterSpacing: '0.07em' }}>
-                {t}
-              </span>
-            ))}
-          </div>
-        </div>
-      ) : (
-        <div>
-          <div style={{ fontFamily: 'JetBrains Mono', fontSize: 11, color: '#fbb238', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 4 }}>
-            Scan &amp; Compete
-          </div>
-          <div style={{ fontFamily: 'JetBrains Mono', fontSize: 10, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.07em' }}>
-            race.manriix.com
-          </div>
-        </div>
-      )}
-    </div>
+    <motion.div
+      animate={{ boxShadow: ['0 0 0 0 rgba(251,178,56,0.5)', '0 0 0 10px rgba(251,178,56,0)', '0 0 0 0 rgba(251,178,56,0)'] }}
+      transition={{ duration: 2.2, repeat: Infinity }}
+      style={{ padding: 12, background: '#fff', borderRadius: 10 }}
+    >
+      <img
+        src="/qr.png" alt="QR Code"
+        width={size} height={size}
+        style={{ display: 'block' }}
+        onError={e => { e.currentTarget.style.background = '#141414'; e.currentTarget.style.width = `${size}px`; e.currentTarget.style.height = `${size}px`; }}
+      />
+    </motion.div>
   );
 }
 
@@ -163,7 +135,7 @@ export default function Display() {
   const loadLb = useCallback(async () => {
     try {
       const { data } = await api.get('/leaderboard');
-      setLb(data.leaderboard.slice(0, 8));
+      setLb(data.leaderboard.slice(0, 10));
       setTotal(data.total);
       setLastRefresh(new Date());
     } catch { /* silent */ }
@@ -181,7 +153,7 @@ export default function Display() {
       background: '#000', color: '#fff',
       fontFamily: 'Inter, system-ui, sans-serif',
       display: 'grid',
-      gridTemplateRows: '6vh 24vh 2fr 1.5fr 9vh',
+      gridTemplateRows: '6vh 22vh 1.5fr 2fr',
       userSelect: 'none',
     }}>
 
@@ -229,11 +201,11 @@ export default function Display() {
       <section style={{
         position: 'relative', zIndex: 1,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '10px 32px',
+        padding: '8px 32px',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
         background: 'rgba(0,0,0,0.4)',
       }}>
-        <QrBlock size={132} compact={false} />
+        <QrBlock size={132} />
       </section>
 
       {/* ── ROW 3: Step carousel (text only) ────────────────────────────── */}
@@ -276,12 +248,12 @@ export default function Display() {
             transition={{ duration: 0.38, ease: 'easeOut' }}
             style={{
               flex: 1, display: 'flex', flexDirection: 'column',
-              justifyContent: 'center', padding: '24px 36px',
+              justifyContent: 'center', padding: '14px 32px',
               minHeight: 0, overflow: 'hidden',
             }}
           >
             {/* Badges row */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, marginBottom: 18 }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, marginBottom: 12 }}>
               <span style={{
                 display: 'inline-flex', alignItems: 'center', gap: 5,
                 fontFamily: 'JetBrains Mono', fontSize: 10, letterSpacing: '0.1em',
@@ -315,8 +287,8 @@ export default function Display() {
             {/* Large step number */}
             <div style={{
               fontFamily: 'JetBrains Mono', fontWeight: 100,
-              fontSize: 'clamp(64px,9vh,110px)', color: step.color,
-              lineHeight: 1, marginBottom: 14,
+              fontSize: 'clamp(52px,7vh,88px)', color: step.color,
+              lineHeight: 1, marginBottom: 10,
             }}>
               {String(step.num).padStart(2, '0')}
             </div>
@@ -324,10 +296,10 @@ export default function Display() {
             {/* Title */}
             <h2 style={{
               fontFamily: 'Inter', fontWeight: 100,
-              fontSize: 'clamp(2rem,4.2vh,4.5rem)',
+              fontSize: 'clamp(1.8rem,3.6vh,3.8rem)',
               lineHeight: 0.92, color: '#fff',
               textTransform: 'uppercase', letterSpacing: '-0.02em',
-              margin: '0 0 20px',
+              margin: '0 0 14px',
             }}>
               {step.title}<br />
               <span style={{ color: step.color }}>{step.titleAccent}</span>
@@ -335,9 +307,9 @@ export default function Display() {
 
             {/* Description */}
             <p style={{
-              fontSize: 'clamp(14px,1.9vh,20px)',
+              fontSize: 'clamp(13px,1.7vh,18px)',
               color: 'rgba(255,255,255,0.55)',
-              lineHeight: 1.7, fontWeight: 300,
+              lineHeight: 1.65, fontWeight: 300,
               margin: 0, maxWidth: 580,
             }}>
               {step.desc}
@@ -350,8 +322,7 @@ export default function Display() {
       <section style={{
         position: 'relative', zIndex: 1,
         display: 'flex', flexDirection: 'column',
-        padding: '10px 24px 8px',
-        borderBottom: '1px solid rgba(255,255,255,0.05)',
+        padding: '10px 24px 6px',
         overflow: 'hidden', minHeight: 0,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8, flexShrink: 0 }}>
@@ -369,7 +340,7 @@ export default function Display() {
           </div>
         </div>
 
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4, overflow: 'hidden', minHeight: 0 }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 3, overflow: 'hidden', minHeight: 0 }}>
           {lbLoading && lb.length === 0 ? (
             [...Array(4)].map((_, i) => (
               <div key={i} style={{ height: 44, borderRadius: 4, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', animation: 'pulse 1.5s infinite' }} />
@@ -381,26 +352,13 @@ export default function Display() {
               </p>
             </div>
           ) : (
-            <AnimatePresence>
-              {lb.map((row, i) => <LeaderRow key={row.id} row={row} i={i} />)}
-            </AnimatePresence>
+            <>{lb.map((row, i) => <LeaderRow key={row.id} row={row} i={i} />)}</>
           )}
         </div>
 
         <div style={{ flexShrink: 0, marginTop: 6, fontFamily: 'JetBrains Mono', fontSize: 9, color: 'rgba(255,255,255,0.18)', textAlign: 'center', letterSpacing: '0.09em', textTransform: 'uppercase' }}>
           Top 3 players win exclusive Manriix prizes
         </div>
-      </section>
-
-      {/* ── ROW 5: Bottom QR ────────────────────────────────────────────── */}
-      <section style={{
-        position: 'relative', zIndex: 1,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '6px 28px',
-        background: 'rgba(251,178,56,0.03)',
-        borderTop: '1px solid rgba(251,178,56,0.08)',
-      }}>
-        <QrBlock size={52} compact />
       </section>
 
     </div>
