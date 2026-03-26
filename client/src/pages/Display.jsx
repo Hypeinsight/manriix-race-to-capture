@@ -82,63 +82,55 @@ function Step2Visual() {
   );
 }
 
-/** Step 3 — minimal race track: lane lines + coloured rectangles + crosshair */
+/** Step 3 — single car zooming across the screen */
 function Step3Visual() {
-  const cars = [
-    { top: '18%', color: '#e53e3e', dur: 2.8, delay: 0   },
-    { top: '50%', color: '#3182ce', dur: 3.5, delay: 0.9 },
-    { top: '82%', color: '#38a169', dur: 2.4, delay: 1.7 },
-  ];
   return (
-    <div style={{ position: 'relative', height: 100, background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(254,215,0,0.14)', borderRadius: 4, overflow: 'hidden' }}>
-      {/* Lane dividers */}
-      {[34, 67].map(p => (
-        <div key={p} style={{ position: 'absolute', width: '100%', height: 1, background: 'rgba(255,255,255,0.06)', top: `${p}%` }} />
-      ))}
+    <div style={{
+      position: 'relative', height: 90,
+      background: 'rgba(0,0,0,0.2)', borderRadius: 6, overflow: 'hidden',
+      border: '1px solid rgba(255,255,255,0.06)',
+    }}>
+      {/* Road line */}
+      <div style={{ position: 'absolute', bottom: 27, left: 0, right: 0, height: 1, background: 'rgba(255,255,255,0.07)' }} />
 
-      {/* Cars */}
-      {cars.map((c, i) => (
-        <motion.div
-          key={i}
-          style={{ position: 'absolute', top: c.top, transform: 'translateY(-50%)', width: 34, height: 16, borderRadius: 3, background: c.color }}
-          animate={{ x: ['-40px', 'calc(100% + 40px)'] }}
-          transition={{ duration: c.dur, repeat: Infinity, delay: c.delay, ease: 'linear' }}
+      {/* Speed-line trails */}
+      {[0, 1, 2, 3].map(i => (
+        <motion.div key={i}
+          style={{
+            position: 'absolute', top: `${20 + i * 14}%`,
+            height: i === 1 ? 2 : 1,
+            background: `rgba(251,178,56,${0.1 + i * 0.07})`,
+            borderRadius: 1,
+          }}
+          animate={{ x: ['100%', '-60%'], width: [18 + i * 18, 55 + i * 22] }}
+          transition={{ duration: 0.38 + i * 0.05, repeat: Infinity, delay: 0.38 + i * 0.07, repeatDelay: 1.75, ease: 'linear' }}
         />
       ))}
 
-      {/* Crosshair */}
-      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: 44, height: 44, pointerEvents: 'none' }}>
-        <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, height: 1, background: 'rgba(254,215,0,0.75)' }} />
-        <div style={{ position: 'absolute', left: '50%', top: 0, bottom: 0, width: 1, background: 'rgba(254,215,0,0.75)' }} />
-        {[
-          { top: 0, left: 0,   bt: true, bl: true  },
-          { top: 0, right: 0,  bt: true, br: true  },
-          { bottom: 0, left: 0,  bb: true, bl: true },
-          { bottom: 0, right: 0, bb: true, br: true },
-        ].map((b, i) => (
-          <div key={i} style={{
-            position: 'absolute', width: 9, height: 9,
-            ...(b.top    !== undefined ? { top: b.top }       : {}),
-            ...(b.bottom !== undefined ? { bottom: b.bottom } : {}),
-            ...(b.left   !== undefined ? { left: b.left }     : {}),
-            ...(b.right  !== undefined ? { right: b.right }   : {}),
-            borderTop:    b.bt ? '2px solid rgba(254,215,0,0.85)' : 'none',
-            borderBottom: b.bb ? '2px solid rgba(254,215,0,0.85)' : 'none',
-            borderLeft:   b.bl ? '2px solid rgba(254,215,0,0.85)' : 'none',
-            borderRight:  b.br ? '2px solid rgba(254,215,0,0.85)' : 'none',
-          }} />
-        ))}
-      </div>
-
-      {/* Timer bar */}
-      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: 'rgba(255,255,255,0.06)' }}>
-        <motion.div
-          style={{ height: '100%', background: 'linear-gradient(90deg,#fed700,#fbb238)', borderRadius: '0 2px 2px 0' }}
-          animate={{ width: ['0%', '100%'] }}
-          transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
-        />
-      </div>
-      <div style={{ position: 'absolute', top: 6, right: 10, fontFamily: 'JetBrains Mono', fontSize: 9, color: 'rgba(254,215,0,0.45)', letterSpacing: '0.1em' }}>15 SEC</div>
+      {/* Car */}
+      <motion.div
+        style={{ position: 'absolute', bottom: 29 }}
+        animate={{ x: ['-130px', 'calc(100% + 130px)'] }}
+        transition={{ duration: 1.5, repeat: Infinity, ease: [0.2, 0, 1, 1], repeatDelay: 0.85 }}
+      >
+        <div style={{ position: 'relative', width: 108 }}>
+          {/* Cabin */}
+          <div style={{
+            marginLeft: 22, marginRight: 16, height: 20,
+            background: '#e89e2e', borderRadius: '4px 4px 0 0',
+          }}>
+            <div style={{ position: 'absolute', top: 3, left: 4, right: 4, bottom: 3, background: 'rgba(180,220,255,0.15)', borderRadius: 2, border: '1px solid rgba(255,255,255,0.1)' }} />
+          </div>
+          {/* Body */}
+          <div style={{ width: 108, height: 24, background: '#fbb238', borderRadius: '2px 5px 3px 3px' }} />
+          {/* Wheels */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: -2, paddingLeft: 11, paddingRight: 13 }}>
+            {[0, 1].map(j => (
+              <div key={j} style={{ width: 20, height: 20, borderRadius: '50%', background: '#111', border: '3px solid #555' }} />
+            ))}
+          </div>
+        </div>
+      </motion.div>
     </div>
   );
 }
@@ -184,6 +176,44 @@ function Step4Visual() {
   );
 }
 
+// ─── Prize banner (shown on all step slides) ─────────────────────────────────
+function PrizeBanner() {
+  const [active, setActive] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setActive(a => (a + 1) % 3), 2000);
+    return () => clearInterval(id);
+  }, []);
+
+  const prizes = [
+    { place: '1ST', amount: 'Rs. 25,000/=', color: '#FFD700' },
+    { place: '2ND', amount: 'Rs. 10,000/=', color: '#C0C0C0' },
+    { place: '3RD', amount: 'Rs.  5,000/=', color: '#CD7F32' },
+  ];
+
+  return (
+    <div style={{ display: 'flex', gap: 10 }}>
+      {prizes.map((p, i) => (
+        <motion.div
+          key={p.place}
+          animate={{
+            borderColor: active === i ? `${p.color}55` : `${p.color}1a`,
+            background:   active === i ? `${p.color}0f` : `${p.color}05`,
+          }}
+          transition={{ duration: 0.45 }}
+          style={{ flex: 1, border: `1px solid ${p.color}1a`, borderRadius: 4, padding: '10px 14px' }}
+        >
+          <div style={{ fontFamily: 'JetBrains Mono', fontSize: 9, color: `${p.color}90`, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 5 }}>
+            {p.place} PLACE
+          </div>
+          <div style={{ fontFamily: 'JetBrains Mono', fontWeight: 700, fontSize: 'clamp(13px,1.8vh,20px)', color: p.color, letterSpacing: '0.02em' }}>
+            {p.amount}
+          </div>
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
 // ─── Slides ───────────────────────────────────────────────────────────────────
 const SLIDES = [
   { id: 's1', type: 'step', num: 1, Icon: Zap,      color: '#fbb238', pts: '+100 pts',          title: 'Register',  titleAccent: 'Your Details', desc: 'Scan the QR code, enter your name, email and company at the Manriix booth. Points are awarded the moment you register.',                                                     Visual: Step1Visual, ms: 7000 },
@@ -197,10 +227,10 @@ const SLIDES = [
 function StepSlide({ slide }) {
   return (
     <div style={{
-      flex: 1, display: 'flex', flexDirection: 'column',
+      flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
       padding: '28px 40px 24px', minHeight: 0, overflow: 'hidden',
     }}>
-      {/* Text block — sits at top, visual pushed to bottom via marginTop:auto */}
+      {/* Text block */}
       <div>
         {/* Badges */}
         <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, marginBottom: 18 }}>
@@ -266,11 +296,11 @@ function StepSlide({ slide }) {
         </p>
       </div>
 
-      {/* Visual animation — pushed to bottom */}
-      <div style={{
-        marginTop: 'auto', paddingTop: 28,
-        borderTop: '1px solid rgba(255,255,255,0.06)',
-      }}>
+      {/* Prize banner */}
+      <PrizeBanner />
+
+      {/* Visual animation */}
+      <div style={{ paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
         <slide.Visual />
       </div>
     </div>
@@ -448,12 +478,12 @@ export default function Display() {
         background: 'rgba(0,0,0,0.92)', backdropFilter: 'blur(12px)',
         borderBottom: '1px solid rgba(255,255,255,0.07)',
       }}>
-        <img src="/logo.png" alt="Manriix" style={{ height: 28, filter: 'brightness(0) invert(1)' }} />
+        <img src="/logo.png" alt="Manriix" style={{ height: 44, filter: 'brightness(0) invert(1)' }} />
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontWeight: 100, fontSize: 'clamp(12px,1.5vw,18px)', letterSpacing: '-0.01em', textTransform: 'uppercase' }}>
+          <div style={{ fontWeight: 200, fontSize: 'clamp(16px,2vw,26px)', letterSpacing: '-0.01em', textTransform: 'uppercase' }}>
             Race to <span style={{ color: '#fbb238' }}>Capture</span>
           </div>
-          <div style={{ fontFamily: 'JetBrains Mono', fontSize: 'clamp(8px,0.9vw,10px)', color: 'rgba(255,255,255,0.28)', letterSpacing: '0.1em', marginTop: 1 }}>
+          <div style={{ fontFamily: 'JetBrains Mono', fontSize: 'clamp(10px,1.2vw,14px)', color: 'rgba(255,255,255,0.5)', letterSpacing: '0.1em', marginTop: 2 }}>
             MOTOR &amp; EV TECHNOLOGY SHOW 2026
           </div>
         </div>
