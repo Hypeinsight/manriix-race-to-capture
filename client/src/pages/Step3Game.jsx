@@ -5,7 +5,7 @@ import Layout from '../components/Layout.jsx';
 import { useParticipant } from '../context/ParticipantContext.jsx';
 import GameCanvas from '../game/GameCanvas.jsx';
 import api from '../lib/api.js';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function Step3Game() {
   const navigate = useNavigate();
@@ -21,9 +21,12 @@ export default function Step3Game() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
-  if (!participant) { navigate('/step/1'); return null; }
-  // Already submitted - skip straight to next step
-  if (participant.step3_completed) { navigate('/step/4'); return null; }
+  useEffect(() => {
+    if (!participant) { navigate('/step/1'); return; }
+    if (participant.step3_completed) { navigate('/step/4'); }
+  }, [participant, navigate]);
+
+  if (!participant || participant.step3_completed) return null;
 
   const handleGameComplete = (captures, points) => {
     const r = { captures, points };
