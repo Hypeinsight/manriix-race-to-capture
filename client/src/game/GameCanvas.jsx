@@ -9,6 +9,10 @@ const PTS_PER_CAPTURE = 15;
 const CAR_COLORS = ['#e63946','#457b9d','#2a9d8f','#e9c46a','#f4a261','#a8dadc','#8338ec','#fb8500'];
 const CAR_TYPES  = ['sports','gt','muscle'];
 
+const ROBOT_SPAWN_CHANCE = 0.18;    // ~1 in 5 spawns is a Manriix robot
+const ROBOT_MULTIPLIERS  = [2, 3];  // possible multiplier values on capture
+const MULTIPLIER_LASTS   = 3;       // number of car captures the buff applies to
+
 // ─── Car drawing ──────────────────────────────────────────────────────────────
 
 function drawWheel(ctx, x, y, r) {
@@ -180,6 +184,68 @@ function drawMuscleCar(ctx, cx, by, w, h, color) {
   drawWheel(ctx, r - w*0.18, wy, wr);
 }
 
+// ─── Manriix robot drawing ────────────────────────────────────────────────────
+
+function drawRobot(ctx, cx, by, w, h, multiplier) {
+  const l = cx - w / 2, r = cx + w / 2;
+  const wr = h * 0.22, wy = by - wr * 0.85;
+
+  // Shadow
+  ctx.save(); ctx.globalAlpha = 0.28;
+  ctx.fillStyle = '#000';
+  ctx.beginPath(); ctx.ellipse(cx, by + 2, w * 0.38, 4, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+
+  // Chassis platform between wheels
+  ctx.fillStyle = '#1c1c1c';
+  ctx.fillRect(l + w * 0.14, by - wr * 1.6, w * 0.72, wr * 0.5);
+
+  // Main body block
+  const bx = l + w * 0.11, bw = w * 0.78;
+  const bt = by - h * 0.87, bh = h * 0.58;
+  ctx.fillStyle = '#111';
+  ctx.fillRect(bx, bt, bw, bh);
+
+  // Amber border glow
+  ctx.strokeStyle = '#fbb238';
+  ctx.lineWidth = 1.5;
+  ctx.shadowColor = '#fbb238';
+  ctx.shadowBlur = 10;
+  ctx.strokeRect(bx, bt, bw, bh);
+  ctx.shadowBlur = 0;
+
+  // Camera lens — Manriix eye
+  const lx = cx, ly = bt + bh * 0.52;
+  const lr = h * 0.14;
+  ctx.fillStyle = '#2a2a2a';
+  ctx.beginPath(); ctx.arc(lx, ly, lr * 1.25, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = '#fbb238'; ctx.lineWidth = 1;
+  ctx.shadowColor = '#fbb238'; ctx.shadowBlur = 8;
+  ctx.stroke();
+  ctx.fillStyle = '#050505';
+  ctx.beginPath(); ctx.arc(lx, ly, lr, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#fbb238'; ctx.shadowBlur = 12;
+  ctx.beginPath(); ctx.arc(lx, ly, lr * 0.42, 0, Math.PI * 2); ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.beginPath(); ctx.arc(lx - lr * 0.32, ly - lr * 0.28, lr * 0.17, 0, Math.PI * 2); ctx.fill();
+
+  // Multiplier badge at top of body
+  ctx.fillStyle = '#fed700';
+  ctx.shadowColor = '#fed700';
+  ctx.shadowBlur = 8;
+  ctx.font = `700 ${Math.max(9, Math.round(h * 0.22))}px "JetBrains Mono", monospace`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(`\u00d7${multiplier}`, cx, bt + bh * 0.16);
+  ctx.shadowBlur = 0;
+  ctx.textBaseline = 'alphabetic';
+
+  // Wheels
+  drawWheel(ctx, l + w * 0.2, wy, wr);
+  drawWheel(ctx, r - w * 0.2, wy, wr);
+}
+
 const CAR_DRAWERS = { sports: drawSportsCar, gt: drawGTCar, muscle: drawMuscleCar };
 
 // ─── Background drawing ───────────────────────────────────────────────────────
@@ -273,6 +339,7 @@ export default function GameCanvas({ onComplete }) {
     captureZoneFlash: 0,
     lastTickSecond: -1,   // for countdown beeps
     engine: null,         // engine ambience handle
+    activeMultiplier: 1, multiplierCapturesLeft: 0, totalPoints: 0,
   });
   const [phase, setPhase]      = useState('idle');   // idle | playing | done
   const [timeLeft, setTimeLeft] = useState(GAME_DURATION);
@@ -316,7 +383,7 @@ export default function GameCanvas({ onComplete }) {
       s.engine?.stop(); s.engine = null;
       playGameOver();
       setPhase('done');
-      onComplete(s.captures);
+      onComplete(s.captures, s.totalPoints);
       return;
     }
 
@@ -343,12 +410,13 @@ export default function GameCanvas({ onComplete }) {
       playTick(remaining <= 1);
     }
 
-    // Spawn cars
+    // Spawn cars and Manriix robots
     if (ts - s.lastSpawn > s.nextSpawnDelay) {
       const roadTop = ch * 0.40, laneH = (ch * 0.52) / 3;
       const lane    = Math.floor(Math.random() * 3);
       const laneY   = roadTop + (lane + 0.78) * laneH;
-      const w       = 145 + Math.random() * 40;
+      const isRobot = Math.random() < ROBOT_SPAWN_CHANCE;
+      const w       = (isRobot ? 100 : 145) + Math.random() * (isRobot ? 20 : 40);
       const h       = w * 0.32;
       const carSpeed = cw / (minCross + Math.random() * 0.2);
       s.cars.push({
@@ -357,8 +425,10 @@ export default function GameCanvas({ onComplete }) {
         y:     laneY,
         w, h,
         speed: carSpeed,
-        color: CAR_COLORS[Math.floor(Math.random() * CAR_COLORS.length)],
-        type:  CAR_TYPES[Math.floor(Math.random() * CAR_TYPES.length)],
+        color: isRobot ? '#fbb238' : CAR_COLORS[Math.floor(Math.random() * CAR_COLORS.length)],
+        type:  isRobot ? 'robot' : CAR_TYPES[Math.floor(Math.random() * CAR_TYPES.length)],
+        isRobot,
+        multiplier: isRobot ? ROBOT_MULTIPLIERS[Math.floor(Math.random() * ROBOT_MULTIPLIERS.length)] : 1,
         captured: false,
         whooshed: false,
       });
@@ -410,18 +480,27 @@ export default function GameCanvas({ onComplete }) {
     drawScene(ctx, cw, ch, s.t);
     drawSpeedLines(ctx, cw, ch, s.t);
 
-    // Draw cars with motion blur
+    // Draw cars and robots with motion blur
     s.cars.forEach(car => {
-      const draw = CAR_DRAWERS[car.type];
-      if (!draw) return;
-      // Ghost copies for motion blur
-      for (let g = 3; g >= 1; g--) {
-        ctx.save();
-        ctx.globalAlpha = 0.08 * (4 - g);
-        draw(ctx, car.x + g * car.w * 0.12, car.y, car.w, car.h, car.color);
-        ctx.restore();
+      if (car.isRobot) {
+        for (let g = 3; g >= 1; g--) {
+          ctx.save();
+          ctx.globalAlpha = 0.08 * (4 - g);
+          drawRobot(ctx, car.x + g * car.w * 0.12, car.y, car.w, car.h, car.multiplier);
+          ctx.restore();
+        }
+        drawRobot(ctx, car.x, car.y, car.w, car.h, car.multiplier);
+      } else {
+        const draw = CAR_DRAWERS[car.type];
+        if (!draw) return;
+        for (let g = 3; g >= 1; g--) {
+          ctx.save();
+          ctx.globalAlpha = 0.08 * (4 - g);
+          draw(ctx, car.x + g * car.w * 0.12, car.y, car.w, car.h, car.color);
+          ctx.restore();
+        }
+        draw(ctx, car.x, car.y, car.w, car.h, car.color);
       }
-      draw(ctx, car.x, car.y, car.w, car.h, car.color);
     });
 
     // Particles
@@ -483,8 +562,15 @@ export default function GameCanvas({ onComplete }) {
     s.scorePopups.forEach(p => {
       ctx.save();
       ctx.globalAlpha = p.alpha;
-      ctx.fillStyle = '#fed700';
-      ctx.font = `bold 22px "JetBrains Mono", monospace`;
+      if (p.isRobot) {
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = '#fbb238';
+        ctx.shadowBlur = 14;
+        ctx.font = `bold 26px "JetBrains Mono", monospace`;
+      } else {
+        ctx.fillStyle = s.activeMultiplier > 1 ? '#fbb238' : '#fed700';
+        ctx.font = `bold 22px "JetBrains Mono", monospace`;
+      }
       ctx.textAlign = 'center';
       ctx.fillText(p.text, p.x, p.y);
       ctx.restore();
@@ -523,6 +609,17 @@ export default function GameCanvas({ onComplete }) {
     ctx.textAlign = 'left';
     ctx.fillText(`×${s.captures}`, 12, 40);
 
+    // Active multiplier indicator
+    if (s.multiplierCapturesLeft > 0) {
+      ctx.fillStyle = '#fbb238';
+      ctx.shadowColor = '#fbb238';
+      ctx.shadowBlur = 14;
+      ctx.font = `bold 15px "JetBrains Mono", monospace`;
+      ctx.textAlign = 'center';
+      ctx.fillText(`\u00d7${s.activeMultiplier}  \u00b7  ${s.multiplierCapturesLeft} left`, cw / 2, 40);
+      ctx.shadowBlur = 0;
+    }
+
     ctx.restore();
 
     s.animId = requestAnimationFrame(tick);
@@ -537,6 +634,7 @@ export default function GameCanvas({ onComplete }) {
     s.captures = 0; s.flashAlpha = 0; s.missShake = 0;
     s.captureZoneFlash = 0; s.lastSpawn = 0; s.nextSpawnDelay = 1800;
     s.lastTickSecond = -1;
+    s.activeMultiplier = 1; s.multiplierCapturesLeft = 0; s.totalPoints = 0;
     s.isRunning = true; s.prevTs = null; s.t = 0;
     s.startTime = performance.now();
     s.engine = startEngine();
@@ -553,6 +651,8 @@ export default function GameCanvas({ onComplete }) {
     const cw = canvas.width, ch = canvas.height;
     const czX = (cw - CAPTURE_W) / 2;
     const roadTop = ch * 0.40, roadH = ch * 0.52;
+    const midX = czX + CAPTURE_W / 2;
+    const midY = roadTop + roadH / 2;
 
     // Check hit
     let hit = false;
@@ -563,33 +663,55 @@ export default function GameCanvas({ onComplete }) {
       if (overlapX && !car.captured) {
         car.captured = true;
         hit = true;
-        s.captures++;
         s.flashAlpha = 1;
         s.captureZoneFlash = 1;
         playCapture();
-        setCaptures(s.captures);
-        // Particles burst
-        const midX = czX + CAPTURE_W / 2;
-        const midY = roadTop + roadH / 2;
-        for (let i = 0; i < 18; i++) {
-          const angle = Math.random() * Math.PI * 2;
-          const speed = 80 + Math.random() * 160;
-          s.particles.push({
-            x: midX + (Math.random()-0.5)*40,
-            y: midY + (Math.random()-0.5)*30,
-            vx: Math.cos(angle) * speed,
-            vy: Math.sin(angle) * speed - 60,
-            color: Math.random() > 0.5 ? '#fed700' : '#fbb238',
-            r: 3 + Math.random() * 4,
-            alpha: 1,
-          });
+
+        if (car.isRobot) {
+          // Activate / upgrade multiplier, refresh duration
+          s.activeMultiplier       = Math.max(s.activeMultiplier, car.multiplier);
+          s.multiplierCapturesLeft = MULTIPLIER_LASTS;
+          // Bright white burst
+          for (let i = 0; i < 22; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = 100 + Math.random() * 180;
+            s.particles.push({
+              x: midX + (Math.random()-0.5)*40,
+              y: midY + (Math.random()-0.5)*30,
+              vx: Math.cos(angle) * speed,
+              vy: Math.sin(angle) * speed - 80,
+              color: Math.random() > 0.4 ? '#ffffff' : '#fbb238',
+              r: 3 + Math.random() * 5,
+              alpha: 1,
+            });
+          }
+          s.scorePopups.push({ x: midX, y: midY - 20, text: `\u00d7${car.multiplier}!`, alpha: 1, isRobot: true });
+        } else {
+          // Car capture — apply active multiplier
+          const pts = PTS_PER_CAPTURE * s.activeMultiplier;
+          s.captures++;
+          s.totalPoints += pts;
+          setCaptures(s.captures);
+          // Consume one multiplier charge
+          if (s.multiplierCapturesLeft > 0) {
+            s.multiplierCapturesLeft--;
+            if (s.multiplierCapturesLeft === 0) s.activeMultiplier = 1;
+          }
+          for (let i = 0; i < 18; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = 80 + Math.random() * 160;
+            s.particles.push({
+              x: midX + (Math.random()-0.5)*40,
+              y: midY + (Math.random()-0.5)*30,
+              vx: Math.cos(angle) * speed,
+              vy: Math.sin(angle) * speed - 60,
+              color: Math.random() > 0.5 ? '#fed700' : '#fbb238',
+              r: 3 + Math.random() * 4,
+              alpha: 1,
+            });
+          }
+          s.scorePopups.push({ x: midX, y: midY - 20, text: `+${pts}`, alpha: 1, isRobot: false });
         }
-        s.scorePopups.push({
-          x: midX,
-          y: midY - 20,
-          text: `+${PTS_PER_CAPTURE}`,
-          alpha: 1,
-        });
         break;
       }
     }
@@ -597,7 +719,7 @@ export default function GameCanvas({ onComplete }) {
       s.missShake = 0.8;
       playMiss();
     } else {
-      playShutter(); // extra tactile shutter on every tap that hits
+      playShutter();
     }
   }, []);
 

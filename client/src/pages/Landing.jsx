@@ -8,7 +8,7 @@ import { playClick } from '../lib/sounds.js';
 const STEPS = [
   { icon: Zap,       label: 'Register',        pts: '100 pts',  color: '#fbb238' },
   { icon: Instagram, label: 'Follow Instagram', pts: '150 pts',  color: '#e1306c' },
-  { icon: Camera,    label: 'Race to Capture',  pts: 'Up to 150 pts', color: '#fed700' },
+  { icon: Camera,    label: 'Race to Capture',  pts: '15 pts / capture', color: '#fed700' },
   { icon: Video,     label: 'Record your hype', pts: '300 pts',  color: '#fbb238', hot: true },
 ];
 

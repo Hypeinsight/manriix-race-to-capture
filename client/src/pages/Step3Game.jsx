@@ -16,8 +16,8 @@ export default function Step3Game() {
 
   if (!participant) { navigate('/step/1'); return null; }
 
-  const handleGameComplete = (captures) => {
-    setResult({ captures, points: captures * 15 });
+  const handleGameComplete = (captures, points) => {
+    setResult({ captures, points });
   };
 
   const handleContinue = async () => {
@@ -26,6 +26,7 @@ export default function Step3Game() {
     try {
       const { data } = await api.post(`/participants/${participant.id}/game`, {
         captures: result.captures,
+        points:   result.points,
       });
       updateParticipant(data.participant);
       navigate('/step/4');

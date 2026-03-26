@@ -100,7 +100,7 @@ router.post('/:id/instagram', screenshotUpload.single('screenshot'), async (req,
 
 // ─── POST /api/participants/:id/game ─── step 3 ──────────────────────────────
 router.post('/:id/game', async (req, res) => {
-  const { captures } = req.body;
+  const { captures, points: gamePoints } = req.body;
 
   if (typeof captures !== 'number' || captures < 0 || captures > 60) {
     return res.status(400).json({ error: 'Invalid captures value' });
@@ -114,7 +114,11 @@ router.post('/:id/game', async (req, res) => {
       return res.json({ participant: rows[0], alreadyCompleted: true });
     }
 
-    const stepPoints = captures * POINTS_PER_CAPTURE;
+    const basePoints = captures * POINTS_PER_CAPTURE;
+    // Accept frontend-computed points (multiplier bonuses) if within valid range
+    const stepPoints = (typeof gamePoints === 'number' && gamePoints >= basePoints && gamePoints <= 2000)
+      ? gamePoints
+      : basePoints;
 
     const result = await db.query(
       `UPDATE participants
