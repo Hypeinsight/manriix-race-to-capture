@@ -421,7 +421,7 @@ function LbSlide({ lb, total, loading, lastRefresh }) {
       </div>
 
       <div style={{ flexShrink: 0, marginTop: 10, fontFamily: 'JetBrains Mono', fontSize: 10, color: 'rgba(255,255,255,0.18)', textAlign: 'center', letterSpacing: '0.09em', textTransform: 'uppercase' }}>
-        Top 3 players win exclusive Manriix prizes · Up to 700 pts available
+        Top 3 players win cash prizes — Rs. 25,000 · Rs. 10,000 · Rs. 5,000
       </div>
     </div>
   );

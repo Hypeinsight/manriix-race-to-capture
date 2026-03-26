@@ -161,15 +161,33 @@ export default function Landing() {
           </button>
         </motion.div>
 
-        {/* Max points hint */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+        {/* Prizes */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
-          className="mt-5 text-xs text-gray-600 dark:text-gray-600"
+          className="w-full max-w-sm mt-5"
         >
-          Up to <span className="text-brand-yellow font-bold">700 points</span> available
-        </motion.p>
+          <div className="flex items-center justify-center gap-1.5 mb-2">
+            <Trophy size={11} style={{ color: '#fed700' }} />
+            <span style={{ fontFamily: 'JetBrains Mono', fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(254,215,0,0.7)' }}>
+              Cash Prizes
+            </span>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { place: '1st', amount: 'Rs. 25,000', color: '#FFD700' },
+              { place: '2nd', amount: 'Rs. 10,000', color: '#C0C0C0' },
+              { place: '3rd', amount: 'Rs.  5,000', color: '#CD7F32' },
+            ].map(p => (
+              <div key={p.place} style={{ background: `${p.color}0a`, border: `1px solid ${p.color}28`, borderRadius: 8, padding: '8px 10px', textAlign: 'center' }}>
+                <Trophy size={14} style={{ color: p.color, margin: '0 auto 5px', display: 'block' }} />
+                <div style={{ fontFamily: 'JetBrains Mono', fontSize: 9, color: `${p.color}80`, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 3 }}>{p.place} Place</div>
+                <div style={{ fontFamily: 'JetBrains Mono', fontWeight: 700, fontSize: 11, color: p.color, lineHeight: 1.3 }}>{p.amount}</div>
+              </div>
+            ))}
+          </div>
+        </motion.div>
       </div>
     </div>
   );
