@@ -80,4 +80,16 @@ router.get('/participants.csv', requireAdmin, async (_req, res) => {
   }
 });
 
+// DELETE /api/admin/participants/:id
+router.delete('/participants/:id', requireAdmin, async (req, res) => {
+  try {
+    const { rowCount } = await db.query('DELETE FROM participants WHERE id = $1', [req.params.id]);
+    if (!rowCount) return res.status(404).json({ error: 'Not found' });
+    res.json({ deleted: true });
+  } catch (err) {
+    console.error('Delete error:', err);
+    res.status(500).json({ error: 'Failed to delete participant' });
+  }
+});
+
 module.exports = router;

@@ -1,6 +1,6 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Download, RefreshCw, Video, Image, Lock } from 'lucide-react';
+import { Download, RefreshCw, Video, Image, Lock, Trash2, Shuffle, Trophy } from 'lucide-react';
 import api from '../lib/api.js';
 
 const STEPS = ['Reg', 'IG', 'Game', 'Video'];
@@ -23,6 +23,16 @@ export default function Admin() {
   const [total, setTotal]     = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState('');
+  const [drawState, setDrawState] = useState({ phase: 'idle', winner: null, highlightIdx: -1 });
+  const drawTimerRef = useRef(null);
+
+  // Reset draw whenever the participant list changes
+  useEffect(() => {
+    setDrawState({ phase: 'idle', winner: null, highlightIdx: -1 });
+  }, [data]);
+
+  // Cleanup timer on unmount
+  useEffect(() => () => { if (drawTimerRef.current) clearTimeout(drawTimerRef.current); }, []);
 
   const load = useCallback(async (key) => {
     setLoading(true); setError('');
@@ -50,6 +60,45 @@ export default function Admin() {
   const downloadCSV = () => {
     const url = `/api/admin/participants.csv?secret=${encodeURIComponent(secret)}`;
     window.open(url, '_blank');
+  };
+
+  const deleteParticipant = async (p) => {
+    if (!window.confirm(`Delete ${p.first_name} ${p.last_name}? This cannot be undone.`)) return;
+    try {
+      await api.delete(`/admin/participants/${p.id}`, { headers: { 'x-admin-secret': secret } });
+      setData(prev => prev.filter(x => x.id !== p.id));
+      setTotal(prev => prev - 1);
+    } catch (err) {
+      alert(err.response?.data?.error || 'Failed to delete');
+    }
+  };
+
+  const runDraw = useCallback((tiedLeaders) => {
+    if (tiedLeaders.length < 2) return;
+    if (drawTimerRef.current) clearTimeout(drawTimerRef.current);
+    const n = tiedLeaders.length;
+    const winnerIdx = Math.floor(Math.random() * n);
+    const totalSteps = n * 4 + winnerIdx; // 4 full rounds then land on winner
+    let step = 0;
+    setDrawState({ phase: 'spinning', winner: null, highlightIdx: 0 });
+    const tick = () => {
+      step++;
+      const curIdx = step % n;
+      const progress = step / totalSteps;
+      const delay = 60 + Math.pow(progress, 1.8) * 540; // ease out 60ms → 600ms
+      if (step >= totalSteps) {
+        setDrawState({ phase: 'done', winner: tiedLeaders[winnerIdx], highlightIdx: winnerIdx });
+      } else {
+        setDrawState(prev => ({ ...prev, highlightIdx: curIdx }));
+        drawTimerRef.current = setTimeout(tick, delay);
+      }
+    };
+    drawTimerRef.current = setTimeout(tick, 60);
+  }, []);
+
+  const resetDraw = () => {
+    if (drawTimerRef.current) clearTimeout(drawTimerRef.current);
+    setDrawState({ phase: 'idle', winner: null, highlightIdx: -1 });
   };
 
   // ── Login gate ──────────────────────────────────────────────────────────────
@@ -95,6 +144,9 @@ export default function Admin() {
   const videoCount    = data.filter(p => p.step4_completed).length;
   const igCount       = data.filter(p => p.step2_completed).length;
   const avgScore      = total ? Math.round(data.reduce((s, p) => s + p.total_points, 0) / total) : 0;
+  const maxScore      = data.length > 0 ? data[0].total_points : 0;
+  const tiedLeaders   = data.filter(p => p.total_points === maxScore);
+  const hasTie        = tiedLeaders.length >= 2;
 
   return (
     <div style={{ minHeight: '100vh', background: '#000', color: '#fff' }}>
@@ -131,12 +183,63 @@ export default function Admin() {
           ))}
         </div>
 
+        {/* Tie Breaker Draw */}
+        {hasTie && (
+          <div style={{ marginBottom: '1.5rem', background: 'rgb(20,20,20)', border: '1px solid rgba(254,215,0,0.25)', borderRadius: 2, padding: '1.25rem 1.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: 12 }}>
+              <div>
+                <p style={{ fontFamily: '"JetBrains Mono", monospace', fontSize: '10px', color: 'rgba(254,215,0,0.6)', textTransform: 'uppercase', letterSpacing: '0.12em', margin: '0 0 4px' }}>Tie Breaker</p>
+                <p style={{ fontFamily: '"JetBrains Mono", monospace', fontSize: '13px', color: 'rgba(255,255,255,0.5)', margin: 0 }}>
+                  {tiedLeaders.length} participants tied at <span style={{ color: '#fed700', fontWeight: 600 }}>{maxScore} pts</span>
+                </p>
+              </div>
+              <button
+                onClick={drawState.phase === 'idle' ? () => runDraw(tiedLeaders) : drawState.phase === 'done' ? resetDraw : undefined}
+                disabled={drawState.phase === 'spinning'}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 6,
+                  background: drawState.phase === 'done' ? 'rgba(34,197,94,0.1)' : 'rgba(254,215,0,0.1)',
+                  border: `1px solid ${drawState.phase === 'done' ? 'rgba(34,197,94,0.35)' : 'rgba(254,215,0,0.35)'}`,
+                  borderRadius: 2, padding: '8px 18px',
+                  color: drawState.phase === 'done' ? '#22c55e' : '#fed700',
+                  fontSize: '12px', cursor: drawState.phase === 'spinning' ? 'default' : 'pointer',
+                  fontFamily: '"JetBrains Mono", monospace', textTransform: 'uppercase', letterSpacing: '0.08em',
+                  opacity: drawState.phase === 'spinning' ? 0.6 : 1,
+                }}
+              >
+                {drawState.phase === 'done' ? <Trophy size={12} /> : <Shuffle size={12} />}
+                {drawState.phase === 'idle' ? 'Run Draw' : drawState.phase === 'spinning' ? 'Drawing…' : 'Reset'}
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+              {tiedLeaders.map((p, i) => {
+                const isHighlit = drawState.phase === 'spinning' && drawState.highlightIdx === i;
+                const isWinner  = drawState.phase === 'done' && drawState.winner?.id === p.id;
+                return (
+                  <div key={p.id} style={{
+                    padding: '8px 14px', borderRadius: 2,
+                    border: `1px solid ${isWinner ? 'rgba(254,215,0,0.6)' : isHighlit ? 'rgba(251,178,56,0.5)' : 'rgba(255,255,255,0.08)'}`,
+                    background: isWinner ? 'rgba(254,215,0,0.1)' : isHighlit ? 'rgba(251,178,56,0.08)' : 'transparent',
+                    transition: 'border-color 0.06s, background 0.06s',
+                  }}>
+                    <p style={{ fontFamily: '"JetBrains Mono", monospace', fontSize: '13px', color: isWinner ? '#fed700' : isHighlit ? '#fbb238' : '#fff', fontWeight: isWinner ? 600 : 400, margin: 0, whiteSpace: 'nowrap' }}>
+                      {isWinner && '🏆 '}{p.first_name} {p.last_name}
+                    </p>
+                    {p.company_name && <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', margin: '2px 0 0', fontFamily: '"JetBrains Mono"' }}>{p.company_name}</p>}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* Table */}
         <div style={{ background: 'rgb(14,14,14)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 2, overflow: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-                {['#','Name','Company','Email','Phone','Score','Steps','Game','Media','Time'].map(h => (
+          {['#','Name','Company','Email','Phone','Score','Steps','Game','Media','Time',''].map(h => (
                   <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontFamily: '"JetBrains Mono", monospace', fontSize: '10px', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 400, whiteSpace: 'nowrap' }}>{h}</th>
                 ))}
               </tr>
@@ -189,11 +292,22 @@ export default function Admin() {
                   <td style={{ padding: '10px 14px', color: 'rgba(255,255,255,0.3)', fontSize: '11px', fontFamily: '"JetBrains Mono"', whiteSpace: 'nowrap' }}>
                     {new Date(p.created_at).toLocaleString('en-GB', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' })}
                   </td>
+                  <td style={{ padding: '10px 14px' }}>
+                    <button
+                      onClick={() => deleteParticipant(p)}
+                      title="Delete participant"
+                      style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.2)', padding: 4, borderRadius: 2, display: 'flex', alignItems: 'center', transition: 'color 0.15s' }}
+                      onMouseEnter={e => e.currentTarget.style.color = '#ef4444'}
+                      onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.2)'}
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  </td>
                 </tr>
               ))}
               {data.length === 0 && (
                 <tr>
-                  <td colSpan={10} style={{ padding: '2.5rem', textAlign: 'center', color: 'rgba(255,255,255,0.2)', fontFamily: '"JetBrains Mono"', fontSize: '12px' }}>
+                  <td colSpan={11} style={{ padding: '2.5rem', textAlign: 'center', color: 'rgba(255,255,255,0.2)', fontFamily: '"JetBrains Mono"', fontSize: '12px' }}>
                     No participants yet
                   </td>
                 </tr>
