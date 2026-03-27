@@ -244,7 +244,7 @@ export default function Admin() {
         </div>
       </header>
 
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '1.5rem 1.25rem' }}>
+      <div style={{ maxWidth: '100%', padding: '1.5rem 1.25rem' }}>
 
         {/* Stats row */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.75rem', marginBottom: '1.5rem' }}>
@@ -313,13 +313,13 @@ export default function Admin() {
         )}
 
         {/* Table */}
-        <div style={{ background: 'rgb(14,14,14)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 2, overflow: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+        <div style={{ background: 'rgb(14,14,14)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 2, overflow: 'hidden' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', tableLayout: 'fixed' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-['#','Name','Company','Email','Phone','Score','Steps','Game','Media','Time','',''].map(h => (
-                  <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontFamily: '"JetBrains Mono", monospace', fontSize: '10px', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 400, whiteSpace: 'nowrap' }}>{h}</th>
-                ))}
+[['#','3%'],['Name','13%'],['Company','11%'],['Email','14%'],['Phone','10%'],['Score','5%'],['Steps','6%'],['Game','4%'],['Media','4%'],['Time','10%'],['','3%'],['','3%']].map(([h, w]) => (
+                  <th key={h+w} style={{ padding: '8px 10px', textAlign: 'left', fontFamily: '"JetBrains Mono", monospace', fontSize: '10px', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 400, whiteSpace: 'nowrap', width: w }}>{h}</th>
+                ))
               </tr>
             </thead>
             <tbody>
@@ -328,38 +328,34 @@ export default function Admin() {
                   onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'}
                   onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                 >
-                  <td style={{ padding: '10px 14px', color: 'rgba(255,255,255,0.25)', fontFamily: '"JetBrains Mono"' }}>{i + 1}</td>
-                  <td style={{ padding: '10px 14px', fontWeight: 400, whiteSpace: 'nowrap' }}>{p.first_name} {p.last_name}</td>
-                  <td style={{ padding: '10px 14px', color: 'rgba(255,255,255,0.45)', whiteSpace: 'nowrap' }}>{p.company_name || '—'}</td>
-                  <td style={{ padding: '10px 14px' }}>
+                  <td style={{ padding: '8px 10px', color: 'rgba(255,255,255,0.25)', fontFamily: '"JetBrains Mono"' }}>{i + 1}</td>
+                  <td style={{ padding: '8px 10px', fontWeight: 400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={`${p.first_name} ${p.last_name}`}>{p.first_name} {p.last_name}</td>
+                  <td style={{ padding: '8px 10px', color: 'rgba(255,255,255,0.45)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={p.company_name}>{p.company_name || '—'}</td>
+                  <td style={{ padding: '8px 10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={p.email}>
                     <a href={`mailto:${p.email}`} style={{ color: '#fbb238', textDecoration: 'none' }}>{p.email}</a>
                   </td>
-                  <td style={{ padding: '10px 14px', color: 'rgba(255,255,255,0.45)', whiteSpace: 'nowrap' }}>{p.phone || '—'}</td>
-                  <td style={{ padding: '10px 14px', fontFamily: '"JetBrains Mono"', color: '#fed700', fontWeight: 600, whiteSpace: 'nowrap' }}>{p.total_points}</td>
+                  <td style={{ padding: '8px 10px', color: 'rgba(255,255,255,0.45)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.phone || '—'}</td>
+                  <td style={{ padding: '8px 10px', fontFamily: '"JetBrains Mono"', color: '#fed700', fontWeight: 600, whiteSpace: 'nowrap' }}>{p.total_points}</td>
                   {/* Step dots */}
-                  <td style={{ padding: '10px 14px' }}>
-                    <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
+                  <td style={{ padding: '8px 10px' }}>
+                    <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
                       {stepKeys.map((k, si) => <Dot key={k} done={p[k]} gold={si === 3} />)}
                     </div>
                   </td>
-                  <td style={{ padding: '10px 14px', fontFamily: '"JetBrains Mono"', color: 'rgba(255,255,255,0.5)', fontSize: '12px' }}>
+                  <td style={{ padding: '8px 10px', fontFamily: '"JetBrains Mono"', color: 'rgba(255,255,255,0.5)', fontSize: '11px' }}>
                     {p.game_captures ?? 0}×
                   </td>
                   {/* Media links */}
-                  <td style={{ padding: '10px 14px' }}>
-                    <div style={{ display: 'flex', gap: 8 }}>
+                  <td style={{ padding: '8px 10px' }}>
+                    <div style={{ display: 'flex', gap: 6 }}>
                       {p.instagram_screenshot_url && (
-                        <a href={p.instagram_screenshot_url} target="_blank" rel="noreferrer"
-                           title="Instagram screenshot"
-                           style={{ color: '#e1306c', display: 'flex', alignItems: 'center' }}>
-                          <Image size={14} />
+                        <a href={p.instagram_screenshot_url} target="_blank" rel="noreferrer" title="Instagram screenshot" style={{ color: '#e1306c', display: 'flex', alignItems: 'center' }}>
+                          <Image size={13} />
                         </a>
                       )}
                       {p.video_url && (
-                        <a href={p.video_url} target="_blank" rel="noreferrer"
-                           title="View video"
-                           style={{ color: '#fed700', display: 'flex', alignItems: 'center' }}>
-                          <Video size={14} />
+                        <a href={p.video_url} target="_blank" rel="noreferrer" title="View video" style={{ color: '#fed700', display: 'flex', alignItems: 'center' }}>
+                          <Video size={13} />
                         </a>
                       )}
                       {!p.instagram_screenshot_url && !p.video_url && (
@@ -367,29 +363,17 @@ export default function Admin() {
                       )}
                     </div>
                   </td>
-                  <td style={{ padding: '10px 14px', color: 'rgba(255,255,255,0.3)', fontSize: '11px', fontFamily: '"JetBrains Mono"', whiteSpace: 'nowrap' }}>
+                  <td style={{ padding: '8px 10px', color: 'rgba(255,255,255,0.3)', fontSize: '11px', fontFamily: '"JetBrains Mono"', whiteSpace: 'nowrap' }}>
                     {new Date(p.created_at).toLocaleString('en-GB', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' })}
                   </td>
-                  <td style={{ padding: '10px 14px' }}>
-                    <button
-                      onClick={() => openEdit(p)}
-                      title="Edit contact details"
-                      style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.2)', padding: 4, borderRadius: 2, display: 'flex', alignItems: 'center', transition: 'color 0.15s' }}
-                      onMouseEnter={e => e.currentTarget.style.color = '#fbb238'}
-                      onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.2)'}
-                    >
-                      <Pencil size={13} />
+                  <td style={{ padding: '8px 6px' }}>
+                    <button onClick={() => openEdit(p)} title="Edit" style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.2)', padding: 3, borderRadius: 2, display: 'flex', alignItems: 'center', transition: 'color 0.15s' }} onMouseEnter={e => e.currentTarget.style.color = '#fbb238'} onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.2)'}>
+                      <Pencil size={12} />
                     </button>
                   </td>
-                  <td style={{ padding: '10px 14px' }}>
-                    <button
-                      onClick={() => deleteParticipant(p)}
-                      title="Delete participant"
-                      style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.2)', padding: 4, borderRadius: 2, display: 'flex', alignItems: 'center', transition: 'color 0.15s' }}
-                      onMouseEnter={e => e.currentTarget.style.color = '#ef4444'}
-                      onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.2)'}
-                    >
-                      <Trash2 size={13} />
+                  <td style={{ padding: '8px 6px' }}>
+                    <button onClick={() => deleteParticipant(p)} title="Delete" style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.2)', padding: 3, borderRadius: 2, display: 'flex', alignItems: 'center', transition: 'color 0.15s' }} onMouseEnter={e => e.currentTarget.style.color = '#ef4444'} onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.2)'}>
+                      <Trash2 size={12} />
                     </button>
                   </td>
                 </tr>
