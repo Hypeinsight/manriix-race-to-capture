@@ -22,6 +22,7 @@ export default function Step1Register() {
     if (!form.lastName.trim())    e.lastName    = 'Required';
     if (!form.email.trim())       e.email       = 'Required';
     else if (!/\S+@\S+\.\S+/.test(form.email)) e.email = 'Invalid email';
+    if (!form.phone.trim())       e.phone       = 'Required';
     return e;
   };
 
@@ -46,7 +47,7 @@ export default function Step1Register() {
   const field = (name, label, icon, type = 'text', placeholder = '') => (
     <div>
       <label className="block text-xs font-semibold text-gray-400 dark:text-gray-400 mb-1.5">
-        {label} {!['companyName','phone'].includes(name) && <span className="text-brand-orange">*</span>}
+        {label} {name !== 'companyName' && <span className="text-brand-orange">*</span>}
       </label>
       <div className="relative">
         <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">{icon}</div>
@@ -92,7 +93,7 @@ export default function Step1Register() {
           </div>
           {field('companyName', 'Company (optional)', <Building2 size={14} />, 'text', 'Acme Corp')}
           {field('email', 'Email Address', <Mail size={14} />, 'email', 'kavin@example.com')}
-          {field('phone', 'Phone (optional)', <Phone size={14} />, 'tel', '+94 77 123 4567')}
+          {field('phone', 'Phone Number', <Phone size={14} />, 'tel', '+94 77 123 4567')}
 
           {apiError && (
             <div className="rounded-xl bg-red-500/10 border border-red-500/30 px-4 py-3 text-sm text-red-400">

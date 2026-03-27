@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Download, RefreshCw, Video, Image, Lock, Trash2, Shuffle, Trophy } from 'lucide-react';
+import { Download, RefreshCw, Video, Image, Lock, Trash2, Shuffle, Trophy, Pencil, X } from 'lucide-react';
 import api from '../lib/api.js';
 
 const STEPS = ['Reg', 'IG', 'Game', 'Video'];
@@ -25,6 +25,10 @@ export default function Admin() {
   const [error, setError]     = useState('');
   const [drawState, setDrawState] = useState({ phase: 'idle', winner: null, highlightIdx: -1 });
   const drawTimerRef = useRef(null);
+  const [editing,     setEditing]     = useState(null); // participant being edited
+  const [editForm,    setEditForm]    = useState({});
+  const [editLoading, setEditLoading] = useState(false);
+  const [editError,   setEditError]   = useState('');
 
   // Reset draw whenever the participant list changes
   useEffect(() => {
@@ -101,6 +105,79 @@ export default function Admin() {
     setDrawState({ phase: 'idle', winner: null, highlightIdx: -1 });
   };
 
+  const openEdit = (p) => {
+    setEditing(p);
+    setEditForm({ first_name: p.first_name, last_name: p.last_name, company_name: p.company_name || '', email: p.email, phone: p.phone || '' });
+    setEditError('');
+  };
+
+  const saveEdit = async () => {
+    if (!editForm.first_name.trim() || !editForm.last_name.trim() || !editForm.email.trim() || !editForm.phone.trim()) {
+      setEditError('First name, last name, email and phone are all required.');
+      return;
+    }
+    setEditLoading(true); setEditError('');
+    try {
+      const { data: res } = await api.put(`/admin/participants/${editing.id}`, editForm, {
+        headers: { 'x-admin-secret': secret },
+      });
+      setData(prev => prev.map(x => x.id === editing.id ? res.participant : x));
+      setEditing(null);
+    } catch (err) {
+      setEditError(err.response?.data?.error || 'Failed to save changes.');
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
+  // ── Edit modal ───────────────────────────────────────────────────────────────
+  const EditModal = editing && (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.82)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}
+      onClick={e => { if (e.target === e.currentTarget) setEditing(null); }}>
+      <div style={{ width: '100%', maxWidth: 460, background: 'rgb(20,20,20)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 4, padding: '1.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
+          <div>
+            <p style={{ fontFamily: '"JetBrains Mono"', fontSize: 10, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.12em', margin: '0 0 4px' }}>Edit Contact Details</p>
+            <p style={{ fontSize: 14, color: '#fff', margin: 0, fontWeight: 400 }}>{editing.first_name} {editing.last_name}</p>
+          </div>
+          <button onClick={() => setEditing(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', padding: 4 }}>
+            <X size={16} />
+          </button>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+            {[['first_name','First Name'],['last_name','Last Name']].map(([k, lbl]) => (
+              <div key={k}>
+                <label style={{ display: 'block', fontFamily: '"JetBrains Mono"', fontSize: 9, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 5 }}>{lbl} *</label>
+                <input className="input" value={editForm[k]} onChange={e => setEditForm(f => ({ ...f, [k]: e.target.value }))} />
+              </div>
+            ))}
+          </div>
+          {[['company_name','Company (optional)'],['email','Email Address *'],['phone','Phone Number *']].map(([k, lbl]) => (
+            <div key={k}>
+              <label style={{ display: 'block', fontFamily: '"JetBrains Mono"', fontSize: 9, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 5 }}>{lbl}</label>
+              <input className="input" type={k === 'email' ? 'email' : k === 'phone' ? 'tel' : 'text'} value={editForm[k]} onChange={e => setEditForm(f => ({ ...f, [k]: e.target.value }))} />
+            </div>
+          ))}
+        </div>
+
+        {editError && (
+          <p style={{ marginTop: '0.75rem', color: '#f87171', fontSize: '12px', fontFamily: '"JetBrains Mono"' }}>{editError}</p>
+        )}
+
+        <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem' }}>
+          <button onClick={saveEdit} disabled={editLoading} className="btn-primary" style={{ flex: 1, fontSize: 13 }}>
+            {editLoading ? 'Saving…' : 'Save Changes'}
+          </button>
+          <button onClick={() => setEditing(null)} style={{ padding: '10px 18px', background: 'transparent', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 2, color: 'rgba(255,255,255,0.4)', fontSize: 13, cursor: 'pointer' }}>
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
   // ── Login gate ──────────────────────────────────────────────────────────────
   if (!authed) {
     return (
@@ -150,6 +227,7 @@ export default function Admin() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#000', color: '#fff' }}>
+      {EditModal}
       {/* Header */}
       <header style={{ background: 'rgb(13,13,13)', borderBottom: '1px solid rgba(255,255,255,0.08)', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 40 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
@@ -239,7 +317,7 @@ export default function Admin() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-          {['#','Name','Company','Email','Phone','Score','Steps','Game','Media','Time',''].map(h => (
+['#','Name','Company','Email','Phone','Score','Steps','Game','Media','Time','',''].map(h => (
                   <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontFamily: '"JetBrains Mono", monospace', fontSize: '10px', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 400, whiteSpace: 'nowrap' }}>{h}</th>
                 ))}
               </tr>
@@ -291,6 +369,17 @@ export default function Admin() {
                   </td>
                   <td style={{ padding: '10px 14px', color: 'rgba(255,255,255,0.3)', fontSize: '11px', fontFamily: '"JetBrains Mono"', whiteSpace: 'nowrap' }}>
                     {new Date(p.created_at).toLocaleString('en-GB', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' })}
+                  </td>
+                  <td style={{ padding: '10px 14px' }}>
+                    <button
+                      onClick={() => openEdit(p)}
+                      title="Edit contact details"
+                      style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.2)', padding: 4, borderRadius: 2, display: 'flex', alignItems: 'center', transition: 'color 0.15s' }}
+                      onMouseEnter={e => e.currentTarget.style.color = '#fbb238'}
+                      onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.2)'}
+                    >
+                      <Pencil size={13} />
+                    </button>
                   </td>
                   <td style={{ padding: '10px 14px' }}>
                     <button

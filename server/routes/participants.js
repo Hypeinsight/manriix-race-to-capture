@@ -13,8 +13,8 @@ const STEP4_POINTS      = parseInt(process.env.STEP4_POINTS)      || 300;
 router.post('/', async (req, res) => {
   const { firstName, lastName, companyName, email, phone } = req.body;
 
-  if (!firstName?.trim() || !lastName?.trim() || !email?.trim()) {
-    return res.status(400).json({ error: 'First name, last name and email are required' });
+  if (!firstName?.trim() || !lastName?.trim() || !email?.trim() || !phone?.trim()) {
+    return res.status(400).json({ error: 'First name, last name, email and phone are required' });
   }
 
   const emailLower = email.toLowerCase().trim();

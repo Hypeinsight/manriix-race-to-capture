@@ -80,6 +80,40 @@ router.get('/participants.csv', requireAdmin, async (_req, res) => {
   }
 });
 
+// PUT /api/admin/participants/:id — edit contact details
+router.put('/participants/:id', requireAdmin, async (req, res) => {
+  const { first_name, last_name, company_name, email, phone } = req.body;
+  if (!first_name?.trim() || !last_name?.trim() || !email?.trim() || !phone?.trim()) {
+    return res.status(400).json({ error: 'First name, last name, email and phone are required' });
+  }
+  try {
+    const { rows } = await db.query(
+      `UPDATE participants
+       SET first_name  = $1,
+           last_name   = $2,
+           company_name = $3,
+           email       = $4,
+           phone       = $5,
+           updated_at  = NOW()
+       WHERE id = $6
+       RETURNING *`,
+      [
+        first_name.trim(),
+        last_name.trim(),
+        company_name?.trim() || '',
+        email.toLowerCase().trim(),
+        phone.trim(),
+        req.params.id,
+      ]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Not found' });
+    res.json({ participant: rows[0] });
+  } catch (err) {
+    console.error('Edit participant error:', err);
+    res.status(500).json({ error: 'Failed to update participant' });
+  }
+});
+
 // DELETE /api/admin/participants/:id
 router.delete('/participants/:id', requireAdmin, async (req, res) => {
   try {
