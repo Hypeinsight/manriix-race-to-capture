@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom';
-import ThemeToggle from './ThemeToggle.jsx';
 import ProgressBar from './ProgressBar.jsx';
 
 export default function Layout({ children, step = 0, totalSteps = 4 }) {
@@ -23,7 +22,6 @@ export default function Layout({ children, step = 0, totalSteps = 4 }) {
             style={{ height: '28px', width: 'auto', filter: 'brightness(0) invert(1)' }}
           />
         </button>
-        <ThemeToggle />
       </header>
 
       {/* ── Progress ── */}

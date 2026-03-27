@@ -4,7 +4,6 @@ import { Trophy, ChevronRight } from 'lucide-react';
 import { useEffect } from 'react';
 import { playFanfare } from '../lib/sounds.js';
 import { useParticipant } from '../context/ParticipantContext.jsx';
-import ThemeToggle from '../components/ThemeToggle.jsx';
 
 const STEPS = [
   { label: 'Register',          key: 'step1_points', done: 'step1_completed' },
@@ -33,7 +32,6 @@ export default function Complete() {
         borderBottom: '1px solid rgba(255,255,255,0.08)',
       }}>
         <img src="/logo.png" alt="Manriix" style={{ height: 28, filter: 'brightness(0) invert(1)' }} />
-        <ThemeToggle />
       </header>
 
       {/* Hero */}

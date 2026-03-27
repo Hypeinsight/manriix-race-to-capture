@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, RefreshCw, ChevronRight, Play } from 'lucide-react';
 import { useParticipant } from '../context/ParticipantContext.jsx';
-import ThemeToggle from '../components/ThemeToggle.jsx';
 import api from '../lib/api.js';
 
 const RANK_STYLE = {
@@ -86,7 +85,6 @@ export default function Leaderboard() {
             <RefreshCw size={12} style={{ animation: loading ? 'spin 0.7s linear infinite' : 'none' }} />
             Refresh
           </button>
-          <ThemeToggle />
         </div>
       </header>
 

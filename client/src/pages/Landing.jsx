@@ -2,7 +2,6 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Trophy, Camera, Instagram, Video, ChevronRight, Zap } from 'lucide-react';
 import { useParticipant } from '../context/ParticipantContext.jsx';
-import ThemeToggle from '../components/ThemeToggle.jsx';
 import { playClick } from '../lib/sounds.js';
 
 const STEPS = [
@@ -65,7 +64,6 @@ export default function Landing() {
           >
             <Trophy size={13} /> Leaderboard
           </button>
-          <ThemeToggle />
         </div>
       </header>
 

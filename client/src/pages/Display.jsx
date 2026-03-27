@@ -461,6 +461,12 @@ export default function Display() {
   useEffect(() => { loadLb(); }, [loadLb]);
   useEffect(() => { const id = setInterval(loadLb, LB_MS); return () => clearInterval(id); }, [loadLb]);
 
+  // Hard-reload every 60 s so the display never goes stale
+  useEffect(() => {
+    const id = setInterval(() => window.location.reload(), 60_000);
+    return () => clearInterval(id);
+  }, []);
+
   const slide     = SLIDES[slideIdx];
   const stepColor = slide.type === 'step' ? slide.color : '#fed700';
 
