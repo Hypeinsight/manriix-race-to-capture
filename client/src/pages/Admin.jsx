@@ -317,9 +317,9 @@ export default function Admin() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', tableLayout: 'fixed' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-[['#','3%'],['Name','13%'],['Company','11%'],['Email','14%'],['Phone','10%'],['Score','5%'],['Steps','6%'],['Game','4%'],['Media','4%'],['Time','10%'],['','3%'],['','3%']].map(([h, w]) => (
+                {[['#','3%'],['Name','13%'],['Company','11%'],['Email','14%'],['Phone','10%'],['Score','5%'],['Steps','6%'],['Game','4%'],['Media','4%'],['Time','10%'],['','3%'],['','3%']].map(([h, w]) => (
                   <th key={h+w} style={{ padding: '8px 10px', textAlign: 'left', fontFamily: '"JetBrains Mono", monospace', fontSize: '10px', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 400, whiteSpace: 'nowrap', width: w }}>{h}</th>
-                ))
+                ))}
               </tr>
             </thead>
             <tbody>
