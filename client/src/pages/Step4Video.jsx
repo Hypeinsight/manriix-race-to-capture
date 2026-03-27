@@ -321,9 +321,11 @@ export default function Step4Video() {
         {/* Skip */}
         <button
           onClick={() => navigate('/complete')}
-          style={{ width: '100%', marginTop: '0.75rem', background: 'none', border: 'none', color: 'rgba(255,255,255,0.2)', fontSize: '11px', cursor: 'pointer', fontFamily: '"JetBrains Mono"', textTransform: 'uppercase', letterSpacing: '0.1em', padding: '8px' }}
+          style={{ width:'100%', marginTop: '0.75rem', background: 'none', border: 'none', color: 'rgba(239,68,68,0.5)', fontSize: '11px', cursor: 'pointer', fontFamily: '"JetBrains Mono"', textTransform: 'uppercase', letterSpacing: '0.1em', padding: '8px', transition: 'opacity 0.15s' }}
+          onMouseEnter={e => e.currentTarget.style.opacity = '0.7'}
+          onMouseLeave={e => e.currentTarget.style.opacity = '1'}
         >
-          Skip (miss 300 pts)
+          ⚠ Skip — you'll miss 300 pts
         </button>
       </motion.div>
     </Layout>

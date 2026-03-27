@@ -167,9 +167,10 @@ export default function Step2Instagram() {
         {/* Skip option (honest — they lose the points) */}
         <button
           onClick={() => navigate('/step/3')}
-          className="w-full mt-3 text-xs text-gray-600 dark:text-gray-600 hover:text-gray-400 transition-colors py-2"
+          className="w-full mt-3 text-xs py-2 transition-colors hover:opacity-80"
+          style={{ color: 'rgba(239,68,68,0.55)' }}
         >
-          Skip this step (you'll miss 150 pts)
+          ⚠ Skip this step — you'll miss 150 pts
         </button>
       </motion.div>
     </Layout>
